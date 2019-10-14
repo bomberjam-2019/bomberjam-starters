@@ -4,12 +4,12 @@
   "license": "ISC",
   "private": true,
   "scripts": {
-    "training-export": "node node_modules/bomberjam-backend/dist/simulator.js --bot=bot.js",
-    "training-browser": "node node_modules/bomberjam-backend/dist/client.js --bot=bot.js --config=config.json --mode=training",
-    "join-match": "node node_modules/bomberjam-backend/dist/client.js --bot=bot.js --config=config.json --mode=match",
+    "training-export": "node node_modules/bomberjam-backend/dist/simulator.js --bot=javascript/bot.js",
+    "training-browser": "node node_modules/bomberjam-backend/dist/client.js --bot=javascript/bot.js --config=config.json --mode=training",
+    "join-match": "node node_modules/bomberjam-backend/dist/client.js --bot=javascript/bot.js --config=config.json --mode=match",
     "server": "node node_modules/bomberjam-backend/dist/server.js"
   },
   "dependencies": {
-    "bomberjam-backend": "^1.0.0"
+    "bomberjam-backend": "^1.0.2"
   }
 }
