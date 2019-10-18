@@ -10,6 +10,6 @@
     "server": "node node_modules/bomberjam-backend/dist/server.js"
   },
   "dependencies": {
-    "bomberjam-backend": "^1.0.2"
+    "bomberjam-backend": "^1.0.3"
   }
 }

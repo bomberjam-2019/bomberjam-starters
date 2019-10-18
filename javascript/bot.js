@@ -1,5 +1,10 @@
 const allActions = ['up', 'down', 'left', 'right', 'stay', 'bomb'];
 
+/**
+ * @param {IGameState} state
+ * @param {string} myPlayerId
+ * @returns {ActionCode}
+ */
 function yourBot(state, myPlayerId) {
     return allActions[Math.floor(Math.random() * allActions.length)];
 }
