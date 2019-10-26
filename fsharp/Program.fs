@@ -2,7 +2,7 @@
 open Bomberjam.Client.Game
 open System
 
-let rng = Random()
+let rng = Random 42
 
 let allGameActions =
     Enum.GetValues typeof<GameAction>
