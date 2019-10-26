@@ -5,7 +5,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Bomberjam.Client" Version="1.0.3-alpha" />
+    <PackageReference Include="Bomberjam.Client" Version="1.0.5-alpha" />
   </ItemGroup>
   
   <ItemGroup>
