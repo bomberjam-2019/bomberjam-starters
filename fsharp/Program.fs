@@ -1,5 +1,4 @@
 ﻿open Bomberjam.Client
-open Bomberjam.Client.Game
 open System
 
 let rng = Random 42
@@ -17,6 +16,7 @@ let generateRandomActionFunc = Func<GameState, string, GameAction>(generateRando
 
 [<EntryPoint>]
 let main _ =
-    let options = BomberjamOptions(Mode = GameMode.Training, BotFunc = generateRandomActionFunc)
-    BomberjamRunner.Run options
+    let options = BomberjamOptions(generateRandomActionFunc)
+    let task = BomberjamRunner.PlayInBrowser options
+    task.GetAwaiter().GetResult() |> ignore
     0
