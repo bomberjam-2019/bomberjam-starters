@@ -22,14 +22,14 @@ namespace Bomberjam.Bot
         
         public static async Task Main()
         {
-            ParseGamelogExemple("/path/to/some.gamelog");
+            ParseGamelogExample("/path/to/some.gamelog");
             
-            await SimulateExemple();
+            await SimulateExample();
             
-            await PlayInBrowserExemple();
+            await PlayInBrowserExample();
         }
 
-        private static void ParseGamelogExemple(string path)
+        private static void ParseGamelogExample(string path)
         {
             var gamelog = new Gamelog(path);
 
@@ -39,7 +39,7 @@ namespace Bomberjam.Bot
             }
         }
 
-        private static async Task SimulateExemple()
+        private static async Task SimulateExample()
         {
             var simulation = await BomberjamRunner.StartSimulation();
             
@@ -64,7 +64,7 @@ namespace Bomberjam.Bot
             return AllActions[Rng.Next(AllActions.Length)];
         }
 
-        private static Task PlayInBrowserExemple()
+        private static Task PlayInBrowserExample()
         {
             return BomberjamRunner.PlayInBrowser(new BomberjamOptions(GenerateRandomAction));
         }
