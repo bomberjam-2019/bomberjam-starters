@@ -9,6 +9,19 @@ function createRangeOfCoordinates(xStart, xRange, xMin, xMax, yStart, yRange, yM
     return coordinates;
 }
 
+const directionOperators = [
+    { x: (x, i) => x + i, y: (y, i) => y },
+    { x: (x, i) => x - i, y: (y, i) => y },
+    { x: (x, i) => x,     y: (y, i) => y + i },
+    { x: (x, i) => x,     y: (y, i) => y - i },
+];
+
+function getValueWithinRange(min, max, value) {
+    return Math.min(max, Math.max(min, value));
+}
+
 module.exports = {
-    createRangeOfCoordinates
+    createRangeOfCoordinates,
+    directionOperators,
+    getValueWithinRange
 }
