@@ -7,6 +7,7 @@ function shuffleInPlace(array) {
         array[i] = array[j];
         array[j] = x;
     }
+
     return array;
 }
 
