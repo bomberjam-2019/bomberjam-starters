@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bomberjam.Bot.AI;
 using Bomberjam.Client;
 
 namespace Bomberjam.Bot
@@ -19,34 +20,27 @@ namespace Bomberjam.Bot
             GameAction.Down,
             GameAction.Bomb
         };
-        
+
         public static async Task Main()
         {
-            ParseGamelogExample("/path/to/some.gamelog");
+            var trainer = new ClassificationTrainer();
             
-            await SimulateExample();
-            
-            await PlayInBrowserExample();
-        }
+            var (trainingSet, testSet) = ModelLoader.LoadData();
+            trainer.Train(trainingSet, testSet);
 
-        private static void ParseGamelogExample(string path)
-        {
-            var gamelog = new Gamelog(path);
-
-            foreach (var step in gamelog)
-            {
-                Console.WriteLine(step.State.Tiles);
-            }
+//            await SimulateExample();
+//            
+//            await PlayInBrowserExample();
         }
 
         private static async Task SimulateExample()
         {
             var simulation = await BomberjamRunner.StartSimulation();
-            
+
             while (!simulation.IsFinished)
             {
                 Console.WriteLine(simulation.CurrentState.Tiles);
-                
+
                 var playerActions = GenerateRandomActionForAllPlayers(simulation.CurrentState);
                 simulation = await simulation.GetNext(playerActions);
             }
