@@ -3,7 +3,6 @@ const model = require("./src/model");
 
 const GAMES_TO_LOAD = 10;
 
-main();
 async function main() {
     const { train, test } = await data.get(GAMES_TO_LOAD);
     const classifier = model.make();
@@ -31,3 +30,5 @@ async function trainModel(model, train, test) {
     console.log(`Test accuracy: ${(accuracy * 100).toFixed(2)}%`);
     console.groupEnd();
 }
+
+main();

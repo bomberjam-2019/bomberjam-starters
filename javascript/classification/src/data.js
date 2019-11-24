@@ -66,7 +66,7 @@ function formatTick({ state, actions }) {
     const actionArray = Object.values(actions);
     for (let player = 0; player < actionArray.length; player++) {
         const actionTaken = ALL_ACTIONS[actionArray[player]];
-        inputs.push([player, ...state.tiles.split('').map(tile => TILES[tile])]);
+        inputs.push(stateToModelInput(player, state));
         outputs.push(oneHotVector(ACTION_SIZE, actionTaken));
     }
 
@@ -74,6 +74,13 @@ function formatTick({ state, actions }) {
         inputs,
         outputs
     };
+}
+
+function stateToModelInput(player, state) {
+    return [
+        player,
+        ...state.tiles.split('').map(tile => TILES[tile])
+    ];
 }
 
 module.exports = {

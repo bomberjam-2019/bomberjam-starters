@@ -1,18 +1,8 @@
-const { Map } = require("./map");
-
-const ALL_ACTIONS = ['up', 'down', 'left', 'right', 'stay', 'bomb'];
-
-/**
- * @param {IGameState} state
- * @param {string} myPlayerId
- * @returns {ActionCode}
- */
-function yourBot(state, myPlayerId) {
-    return ALL_ACTIONS[Math.floor(Math.random() * ALL_ACTIONS.length)];
-}
+const { classifierBot } = require("./classification/bots");
+const { scriptedBot } = require("./scripted/bots");
 
 function dumbBot() {
     return "bomb";
 }
 
-module.exports = [yourBot, dumbBot, dumbBot, dumbBot];
+module.exports = [classifierBot, dumbBot, dumbBot, dumbBot];
