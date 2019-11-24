@@ -6,13 +6,23 @@ using Bomberjam.Client;
 
 namespace Bomberjam.Bot.AI
 {
-    public class ModelLoader
+    public class ModelLoader<T>
     {
         private const string Gamelogs = @"F:\tmp\8000_gamelogs";
-        private const int SampleSize = 50;
+        private const int SampleSize = 100;
         private const double TestRatio = 0.2;
+
+        public GenerateDataDelegate GenerateData { get; }
+
+
+        public delegate T GenerateDataDelegate(GameStateStep step, string playerId);
+
+        public ModelLoader(GenerateDataDelegate generateData)
+        {
+            GenerateData = generateData;
+        }
         
-        public static (IEnumerable<BomberJamModel.PlayerState> trainingSet, IEnumerable<BomberJamModel.PlayerState> testSet) LoadData()
+        public (IEnumerable<T> trainingSet, IEnumerable<T> testSet) LoadData()
         {
             var fileEntries = Directory.GetFiles(Gamelogs).Take(SampleSize);
             
@@ -20,7 +30,7 @@ namespace Bomberjam.Bot.AI
         }
         
         
-        private static (IEnumerable<BomberJamModel.PlayerState> trainingSet, IEnumerable<BomberJamModel.PlayerState> testSet) SplitData(
+        private (IEnumerable<T> trainingSet, IEnumerable<T> testSet) SplitData(
             IEnumerable<string> entries)
         {
             var enumerable = entries.ToList();
@@ -34,11 +44,11 @@ namespace Bomberjam.Bot.AI
             return (trainingSet, testSet);
         }
         
-        private static IEnumerable<BomberJamModel.PlayerState> GenerateModel(Gamelog gamelog)
+        private IEnumerable<T> GenerateModel(Gamelog gamelog)
         {
-            foreach (var step in gamelog)
+            foreach (GameStateStep step in gamelog)
             foreach (var player in step.Actions.Keys)
-                yield return BomberJamModel.ComputePlayerModel(step, player);
+                yield return this.GenerateData(step, player);
         }
 
     }

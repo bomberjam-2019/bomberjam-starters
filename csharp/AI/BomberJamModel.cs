@@ -5,6 +5,50 @@ namespace Bomberjam.Bot.AI
 {
     public class BomberJamModel
     {
+//        public class BomberJamDataPoint : DataPoint
+//        {
+//            public string Label { get; set; }
+//            
+//            [VectorType(11)] 
+//            public float[] Features { get; set; }
+//        }
+
+        public static DataPoint GenerateDataPoint(GameStateStep step, string playerId)
+        {
+            var player = step.State.Players[playerId];
+            var x = player.X;
+            var y = player.Y;
+
+            var topLeftTile = GetBoardTile(step, x - 1, y - 1);
+            var topCenterTile = GetBoardTile(step, x, y - 1);
+            var topRightTile = GetBoardTile(step, x + 1, y - 1);
+            var leftTile = GetBoardTile(step, x - 1, y);
+            var rightTile = GetBoardTile(step, x + 1, y);
+            var bottomLeftTile = GetBoardTile(step, x - 1, y + 1);
+            var bottomCenterTile = GetBoardTile(step, x - 1, y + 1);
+            var bottomRightTile = GetBoardTile(step, x - 1, y + 1);
+            
+            return new DataPoint
+            {
+                Label =  (step.Actions[playerId] ?? GameAction.Stay).ToString(),
+                Features = new float[]
+                {
+                    player.Alive ? 1 : 0,
+                    player.Respawning,
+                    player.BombsLeft,
+                    topLeftTile,
+                    topCenterTile,
+                    topRightTile,
+                    leftTile,
+                    rightTile,
+                    bottomLeftTile,
+                    bottomCenterTile,
+                    bottomRightTile,
+                }
+            };
+        }
+
+
         public static PlayerState ComputePlayerModel(GameStateStep step, string playerId)
         {
             var player = step.State.Players[playerId];
@@ -28,7 +72,7 @@ namespace Bomberjam.Bot.AI
             };
         }
 
-        private static float GetBoardTile(GameStateStep step, int x, int y)
+        private static uint GetBoardTile(GameStateStep step, int x, int y)
         {
             if (x < 0 || x >= step.State.Width || y < 0 || y >= step.State.Height) return '#';
 

@@ -23,9 +23,12 @@ namespace Bomberjam.Bot
 
         public static async Task Main()
         {
-            var trainer = new ClassificationTrainer();
-            
-            var (trainingSet, testSet) = ModelLoader.LoadData();
+            var trainer =
+                new GenericClassificationTrainer();
+
+            var loader = new ModelLoader<DataPoint>(BomberJamModel.GenerateDataPoint);
+
+            var (trainingSet, testSet) = loader.LoadData();
             trainer.Train(trainingSet, testSet);
 
 //            await SimulateExample();
