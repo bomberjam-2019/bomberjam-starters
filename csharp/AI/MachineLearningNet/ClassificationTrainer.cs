@@ -28,10 +28,13 @@ namespace Bomberjam.Bot
 
             var trainedModel = trainingPipeline.Fit(trainingDataView);
             Evaluate(trainedModel, testDataView);
+            
+            var transformedTestData = trainedModel.Transform(testDataView);
+            
 
-  //          PredictionEngine<BomberJamModel.PlayerState, BomberJamModel.MovePrediction> predictionEngine = this._mlContext.Model.CreatePredictionEngine<BomberJamModel.PlayerState, BomberJamModel.MovePrediction>(trainedModel);
+            PredictionEngine<BomberJamModel.PlayerState, BomberJamModel.MovePrediction> predictionEngine = this._mlContext.Model.CreatePredictionEngine<BomberJamModel.PlayerState, BomberJamModel.MovePrediction>(trainedModel);
 
-//            CustomEvaluate(s => predictionEngine.Predict(s), testSet);
+            CustomEvaluate(s => predictionEngine.Predict(s), testSet);
         }
 
         public IEstimator<ITransformer> BuildAndTrainModel()
@@ -43,9 +46,7 @@ namespace Bomberjam.Bot
             // Convert the Label back into original text (after converting to number in step 3)
 
             var pipeline =
-                _mlContext.Transforms.Conversion.MapValueToKey(
-                        inputColumnName: nameof(BomberJamModel.PlayerState.Move),
-                        outputColumnName: "Label")
+                _mlContext.Transforms.Conversion.MapValueToKey(nameof(BomberJamModel.PlayerState.Label))
                     .Append(
                         _mlContext.Transforms.Concatenate("Features",
                             nameof(BomberJamModel.PlayerState.TopCenterTile),
@@ -62,9 +63,11 @@ namespace Bomberjam.Bot
                     .Append(_mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy(
                         "Label",
                         "Features"))
-                    .Append(_mlContext.Transforms.Conversion.MapKeyToValue(
-                        inputColumnName: "Label",
-                        outputColumnName: "PredictedLabel"));
+                    .Append(
+                        this._mlContext.Transforms.Conversion.MapKeyToValue(
+                            inputColumnName: "PredictedLabel",
+                            outputColumnName: "PredictedLabel"
+                        ));
             
 
             return pipeline;
@@ -96,16 +99,17 @@ namespace Bomberjam.Bot
         {
             var success = 0;
             var failure = 0;
+            
+                            
 
             foreach (var state in states)
             {
-                var expectedResult = state.Move;
-                state.Move = "";
+                var expectedResult = state.Label;
+                state.Label = "";
                 var result = predictor(state);
                 
-                Console.WriteLine($"Predict: {result.Move}, Right Answer: {expectedResult}");
-
-                if (result.Move == expectedResult)
+                
+                if (result.PredictedLabel  == expectedResult)
                 {
                     ++success;
                 }

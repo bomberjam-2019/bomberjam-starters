@@ -9,7 +9,7 @@ namespace Bomberjam.Bot.AI
     public class ModelLoader
     {
         private const string Gamelogs = @"F:\tmp\8000_gamelogs";
-        private const int SampleSize = 10;
+        private const int SampleSize = 50;
         private const double TestRatio = 0.2;
         
         public static (IEnumerable<BomberJamModel.PlayerState> trainingSet, IEnumerable<BomberJamModel.PlayerState> testSet) LoadData()

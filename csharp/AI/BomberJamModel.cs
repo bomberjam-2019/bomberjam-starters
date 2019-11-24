@@ -21,14 +21,14 @@ namespace Bomberjam.Bot.AI
                 BottomLeftTile = GetBoardTile(step, x - 1, y + 1),
                 BottomCenterTile = GetBoardTile(step, x - 1, y + 1),
                 BottomRightTile = GetBoardTile(step, x - 1, y + 1),
-                Alive = player.Alive ? 1 : 0,
-                Respawning = player.Respawning,
-                BombsLeft = player.BombsLeft,
-                Move = (step.Actions[playerId] ?? GameAction.Stay).ToString()
+                Alive = (uint) (player.Alive ? 1 : 0),
+                Respawning = (uint) player.Respawning,
+                BombsLeft = (uint) player.BombsLeft,
+                Label = (step.Actions[playerId] ?? GameAction.Stay).ToString()
             };
         }
 
-        private static int GetBoardTile(GameStateStep step, int x, int y)
+        private static float GetBoardTile(GameStateStep step, int x, int y)
         {
             if (x < 0 || x >= step.State.Width || y < 0 || y >= step.State.Height) return '#';
 
@@ -71,15 +71,17 @@ namespace Bomberjam.Bot.AI
             [ColumnName("BombsLeft")]
             public float BombsLeft { get; internal set; }
 
-            [ColumnName("Move")]
-            public string Move { get; set; }
+            public string Label { get; set; }
         }
 
         public class MovePrediction
         {
-            [ColumnName("PredictedLabel")] public string Move { get; set; }
+            [ColumnName("PredictedLabel")] public string PredictedLabel  { get; set; }
+            
+//            public string PredictedMove { get; set; }
             
             [ColumnName("Score")] public float[] Scores { get; set; }
         }
+        
     }
 }
