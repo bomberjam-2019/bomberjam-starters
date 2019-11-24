@@ -10,6 +10,8 @@
     "server": "node node_modules/bomberjam-backend/dist/server.js"
   },
   "dependencies": {
-    "bomberjam-backend": "^1.0.3"
+    "@tensorflow/tfjs-node": "1.3.2",
+    "bomberjam-backend": "^1.0.3",
+    "fs": "0.0.1-security"
   }
 }

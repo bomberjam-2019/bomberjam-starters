@@ -1,0 +1,1 @@
+Extract the gamelogs in this folder
