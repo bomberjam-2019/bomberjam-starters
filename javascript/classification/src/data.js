@@ -5,19 +5,19 @@ const fs = require("fs");
 const path = require("path");
 const readline = require("readline");
 
-const { shuffleInPlace, oneHotVector } = require("./utils");
-const { TILES, ALL_ACTIONS, ACTION_SIZE } = require("./game-constants");
+const { oneHotVector, createMap } = require("./utils");
+const { TILE_NAMES, TILE_MAPPING, ALL_ACTIONS, ACTION_SIZE } = require("./game-constants");
 
 const DATA_DIRECTORY = "./data";
 
-async function get(numberOfGames, trainRatio = 0.75) {
+async function get(startIndex, gamesToLoad) {
     console.group("\nParsing data");
     const inputs = [];
     const outputs = [];
-    const fileNames = shuffleInPlace(fs.readdirSync(DATA_DIRECTORY));
+    const fileNames = fs.readdirSync(DATA_DIRECTORY);
 
-    let games = 0;
-    const selectedFiles = fileNames.splice(0, numberOfGames);
+    let games = startIndex;
+    const selectedFiles = fileNames.splice(startIndex, gamesToLoad);
     for (const fileName of selectedFiles) {
         const filePath = path.resolve(DATA_DIRECTORY, fileName);
         const gameData = await parseGameData(filePath);
@@ -27,20 +27,10 @@ async function get(numberOfGames, trainRatio = 0.75) {
     }
     console.groupEnd();
 
-    const train = {
-        inputs: tf.tensor2d(inputs.splice(0, Math.round(inputs.length * trainRatio))),
-        outputs: tf.tensor2d(outputs.splice(0, Math.round(outputs.length * trainRatio)))
-    }
-
-    const test = {
-        inputs: tf.tensor2d(inputs),
-        outputs: tf.tensor2d(outputs)
-    }
-
     return {
-        train,
-        test
-    }
+        inputs: tf.tensor4d(inputs),
+        outputs: tf.tensor2d(outputs)
+    };
 }
 
 async function parseGameData(filePath) {
@@ -77,9 +67,43 @@ function formatTick({ state, actions }) {
 }
 
 function stateToModelInput(player, state) {
+    const otherPlayers = Object.values(state.players);
+    const currentPlayer = otherPlayers.splice(player, 1)[0];
+
+    const currentPlayerPositionMap = createMap(state.width, state.height);
+    currentPlayerPositionMap[currentPlayer.x][currentPlayer.y] = 1;
+
+    const otherPlayersPositionMap = createMap(state.width, state.height);
+    for (const otherPlayer of otherPlayers) {
+        otherPlayersPositionMap[otherPlayer.x][otherPlayer.y] = 1;
+    }
+
+    const bombPositionsMap = createMap(state.width, state.height);
+    for (const bomb of Object.values(state.bombs)) {
+        bombPositionsMap[bomb.x][bomb.y] = 1;
+    }
+
+    const breakableTilesMap = createMap(state.width, state.height);
+    const blockedTilesMap = createMap(state.width, state.height);
+    for (let x = 0; x < state.width; x++) {
+        for (let y = 0; y < state.height; y++) {
+            const tile = TILE_MAPPING[state.tiles[x + y * state.width]];
+            if(tile === TILE_NAMES.breakable) {
+                breakableTilesMap[x][y] = 1;
+            }
+
+            if(tile === TILE_NAMES.blocked) {
+                blockedTilesMap[x][y] = 1;
+            }
+        }
+    }
+
     return [
-        player,
-        ...state.tiles.split('').map(tile => TILES[tile])
+        currentPlayerPositionMap,
+        otherPlayersPositionMap,
+        bombPositionsMap,
+        breakableTilesMap,
+        blockedTilesMap
     ];
 }
 

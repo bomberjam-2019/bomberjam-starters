@@ -1,8 +1,15 @@
-const TILES = {
-    ".": 0,
-    "#": 1,
-    "+": 2,
-    "*": 3
+const TILE_NAMES = {
+    empty: "empty",
+    blocked: "blocked",
+    breakable: "breakable",
+    explosion: "explosion"
+};
+
+const TILE_MAPPING = {
+    ".": TILE_NAMES.empty,
+    "#": TILE_NAMES.blocked,
+    "+": TILE_NAMES.breakable,
+    "*": TILE_NAMES.explosion
 };
 
 const ALL_ACTIONS = {
@@ -22,7 +29,8 @@ const BOARD = {
 }
 
 module.exports = {
-    TILES,
+    TILE_NAMES,
+    TILE_MAPPING,
     ALL_ACTIONS,
     ACTION_SIZE,
     BOARD

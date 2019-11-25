@@ -18,7 +18,14 @@ function oneHotVector(size, highBit) {
     return vector;
 }
 
+function createMap(width, height) {
+    return (new Array(width))
+        .fill(0)
+        .map(_ => (new Array(height)).fill(0));
+}
+
 module.exports = {
     shuffleInPlace,
-    oneHotVector
+    oneHotVector,
+    createMap
 };

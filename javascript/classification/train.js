@@ -1,31 +1,44 @@
+const tf = require("@tensorflow/tfjs");
+require("@tensorflow/tfjs-node");
+
 const data = require("./src/data");
 const model = require("./src/model");
 
-const GAMES_TO_LOAD = 10;
+const DATASET_SIZE = 1000;
+const GAMES_TO_LOAD = 100;
 
 async function main() {
-    const { train, test } = await data.get(GAMES_TO_LOAD);
     const classifier = model.make();
-    await trainModel(classifier, train, test);
-    classifier.save("file://./class-bomberjam.tfm");
-}
+    let accuracyMetricIndex = null;
 
-async function trainModel(model, train, test) {
-    console.group("\nFitting model");
-    const fitResult = await model.fit(train.inputs, train.outputs, {
-        batchSize: 64,
-        epochs: 10,
-        shuffle: true,
-        validationSplit: 0.15
-    });
-    console.groupEnd();
+    let start = 0;
+    while (start < DATASET_SIZE - GAMES_TO_LOAD) {
+        const train = await data.get(start, GAMES_TO_LOAD);
+        console.group("\nFitting model |", tf.memory().numTensors, "tensors");
+        const fitResult = await classifier.fit(train.inputs, train.outputs, {
+            batchSize: 64,
+            epochs: 10,
+            shuffle: true,
+            validationSplit: 0.15
+        });
+        train.inputs.dispose();
+        train.outputs.dispose();
+        
+        if (!accuracyMetricIndex) {
+            accuracyMetricIndex = fitResult.params.metrics.indexOf("acc");
+        }
+
+        classifier.save("file://./bomberjam-cnn.tfm");
+        console.groupEnd();
+
+        start += GAMES_TO_LOAD;
+    }
 
     console.group("\nEvaluating model");
-    const evalResult = model.evaluate(test.inputs, test.outputs, {
+    const test = await data.get(start, GAMES_TO_LOAD);
+    const evalResult = classifier.evaluate(test.inputs, test.outputs, {
         batchSize: test.inputs.length
     });
-    
-    const accuracyMetricIndex = fitResult.params.metrics.indexOf("acc");
     const accuracy = await evalResult[accuracyMetricIndex].data();
     console.log(`Test accuracy: ${(accuracy * 100).toFixed(2)}%`);
     console.groupEnd();
