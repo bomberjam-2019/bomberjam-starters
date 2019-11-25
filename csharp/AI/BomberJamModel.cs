@@ -69,6 +69,7 @@ namespace Bomberjam.Bot.AI
             var twoRightTile = GetBoardTile(state, x + 2, y);
             var bottomCenterTile = GetBoardTile(state, x - 1, y + 1);
             var twoBottomCenterTile = GetBoardTile(state, x - 1, y + 1);
+            var currentTile = GetBoardTile(state, x, y);
 
             return new float[]
             {
@@ -82,6 +83,7 @@ namespace Bomberjam.Bot.AI
                 rightTile,
                 twoBottomCenterTile,
                 bottomCenterTile,
+                currentTile
             };
         }
 
