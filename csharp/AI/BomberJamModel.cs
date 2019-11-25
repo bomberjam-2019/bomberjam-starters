@@ -18,7 +18,7 @@ namespace Bomberjam.Bot.AI
             return new DataPoint
             {
                 Label = (step.Actions[playerId] ?? GameAction.Stay).ToString(),
-                Features = GetStateFeatures(step.State, playerId)
+                Features = GetStateFeatures2(step.State, playerId)
             };
         }
         
@@ -33,6 +33,7 @@ namespace Bomberjam.Bot.AI
             var topRightTile = GetBoardTile(state, x + 1, y - 1);
             var leftTile = GetBoardTile(state, x - 1, y);
             var rightTile = GetBoardTile(state, x + 1, y);
+            var currentTile = GetBoardTile(state, x, y);
             var bottomLeftTile = GetBoardTile(state, x - 1, y + 1);
             var bottomCenterTile = GetBoardTile(state, x - 1, y + 1);
             var bottomRightTile = GetBoardTile(state, x - 1, y + 1);
@@ -50,6 +51,37 @@ namespace Bomberjam.Bot.AI
                 bottomLeftTile,
                 bottomCenterTile,
                 bottomRightTile,
+                currentTile,
+            };
+        }
+        
+        public static float[] GetStateFeatures2(GameState state, string playerId)
+        {
+            var player = state.Players[playerId];
+            var x = player.X;
+            var y = player.Y;
+
+            var twoTopTile = GetBoardTile(state, x, y - 2);
+            var topCenterTile = GetBoardTile(state, x, y - 1);
+            var leftTile = GetBoardTile(state, x - 1, y);
+            var twoLeftTile = GetBoardTile(state, x - 2, y);
+            var rightTile = GetBoardTile(state, x + 1, y);
+            var twoRightTile = GetBoardTile(state, x + 2, y);
+            var bottomCenterTile = GetBoardTile(state, x - 1, y + 1);
+            var twoBottomCenterTile = GetBoardTile(state, x - 1, y + 1);
+
+            return new float[]
+            {
+                player.Alive ? 1 : 0,
+                player.Respawning,
+                player.BombsLeft,
+                twoLeftTile,
+                topCenterTile,
+                twoRightTile,
+                leftTile,
+                rightTile,
+                twoBottomCenterTile,
+                bottomCenterTile,
             };
         }
 

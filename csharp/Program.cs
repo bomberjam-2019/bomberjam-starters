@@ -32,16 +32,16 @@ namespace Bomberjam.Bot
 //            var (trainingSet, testSet) = loader.LoadData();
 //            trainer.Train(trainingSet, testSet);
 
-            
-            var mlContext = new MLContext(0);
-
-            var loadedModel = mlContext.Model.Load(@"C:\Dev\bomberjam\csharp\trained-model", out var modelInputSchema);    
-            
-            var predictionEngine = mlContext.Model.CreatePredictionEngine<DataPoint, Prediction>(loadedModel);
-
+//            
+//            var mlContext = new MLContext(0);
+//
+//            var loadedModel = mlContext.Model.Load(@"C:\Dev\bomberjam\csharp\trained-model", out var modelInputSchema);    
+//            
+//            var predictionEngine = mlContext.Model.CreatePredictionEngine<DataPoint, Prediction>(loadedModel);
+//
 //            await SimulateExample(x => Enum.Parse<GameAction>(predictionEngine.Predict(x).PredictedLabel));
-            
-            await PlayInBrowserExample(x => Enum.Parse<GameAction>(predictionEngine.Predict(x).PredictedLabel));
+//            
+//            await PlayInBrowserExample(x => Enum.Parse<GameAction>(predictionEngine.Predict(x).PredictedLabel));
         }
 
         private static async Task SimulateExample(Func<DataPoint, GameAction> getMove)
@@ -57,7 +57,7 @@ namespace Bomberjam.Bot
                     p => p.Key,
                     p => getMove(new DataPoint()
                     {
-                        Features =  BomberJamModel.GetStateFeatures(currentState, p.Key)
+                        Features =  BomberJamModel.GetStateFeatures2(currentState, p.Key)
                     }));
                 
                 simulation = await simulation.GetNext(playerActions);
@@ -75,7 +75,7 @@ namespace Bomberjam.Bot
         {
             var move = getMove(new DataPoint()
             {
-                Features =  BomberJamModel.GetStateFeatures(state, myPlayerId)
+                Features =  BomberJamModel.GetStateFeatures2(state, myPlayerId)
             });
             
             Console.WriteLine($"{myPlayerId} {move}");
