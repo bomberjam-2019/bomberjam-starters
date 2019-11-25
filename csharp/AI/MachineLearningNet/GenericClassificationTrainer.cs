@@ -49,10 +49,11 @@ namespace Bomberjam.Bot
             var trainedModel = trainingPipeline.Fit(trainingDataView);
             Evaluate(trainedModel, testDataView);
             
+            _mlContext.Model.Save(trainedModel, trainingDataView.Schema, "trained-model");
 
-            var predictionEngine = this._mlContext.Model.CreatePredictionEngine<DataPoint, Prediction>(trainedModel);
+            //var predictionEngine = this._mlContext.Model.CreatePredictionEngine<DataPoint, Prediction>(trainedModel);
 
-            CustomEvaluate(s => predictionEngine.Predict(s), testSet);
+            //CustomEvaluate(s => predictionEngine.Predict(s), testSet);
         }
 
         public IEstimator<ITransformer> BuildAndTrainModel()
@@ -66,7 +67,7 @@ namespace Bomberjam.Bot
             var pipeline =
                 _mlContext.Transforms.Conversion.MapValueToKey(nameof(DataPoint.Label))
                     .AppendCacheCheckpoint(_mlContext)
-                    .Append(_mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy())
+                    .Append(_mlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy())
                     .Append(
                         this._mlContext.Transforms.Conversion.MapKeyToValue(
                             inputColumnName: "PredictedLabel",
@@ -91,7 +92,11 @@ namespace Bomberjam.Bot
             
             Console.WriteLine($"Micro Accuracy: {metrics.MicroAccuracy:F2}");
             Console.WriteLine($"Macro Accuracy: {metrics.MacroAccuracy:F2}");
+            
+            
             Console.WriteLine($"Log Loss: {metrics.LogLoss:F2}");
+            
+            // 1 = Perfect prediction, 0 = Mean Prediction
             Console.WriteLine(
                 $"Log Loss Reduction: {metrics.LogLossReduction:F2}\n");
 

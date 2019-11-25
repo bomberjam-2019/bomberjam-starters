@@ -15,36 +15,41 @@ namespace Bomberjam.Bot.AI
 
         public static DataPoint GenerateDataPoint(GameStateStep step, string playerId)
         {
-            var player = step.State.Players[playerId];
+            return new DataPoint
+            {
+                Label = (step.Actions[playerId] ?? GameAction.Stay).ToString(),
+                Features = GetStateFeatures(step.State, playerId)
+            };
+        }
+        
+        public static float[] GetStateFeatures(GameState state, string playerId)
+        {
+            var player = state.Players[playerId];
             var x = player.X;
             var y = player.Y;
 
-            var topLeftTile = GetBoardTile(step, x - 1, y - 1);
-            var topCenterTile = GetBoardTile(step, x, y - 1);
-            var topRightTile = GetBoardTile(step, x + 1, y - 1);
-            var leftTile = GetBoardTile(step, x - 1, y);
-            var rightTile = GetBoardTile(step, x + 1, y);
-            var bottomLeftTile = GetBoardTile(step, x - 1, y + 1);
-            var bottomCenterTile = GetBoardTile(step, x - 1, y + 1);
-            var bottomRightTile = GetBoardTile(step, x - 1, y + 1);
-            
-            return new DataPoint
+            var topLeftTile = GetBoardTile(state, x - 1, y - 1);
+            var topCenterTile = GetBoardTile(state, x, y - 1);
+            var topRightTile = GetBoardTile(state, x + 1, y - 1);
+            var leftTile = GetBoardTile(state, x - 1, y);
+            var rightTile = GetBoardTile(state, x + 1, y);
+            var bottomLeftTile = GetBoardTile(state, x - 1, y + 1);
+            var bottomCenterTile = GetBoardTile(state, x - 1, y + 1);
+            var bottomRightTile = GetBoardTile(state, x - 1, y + 1);
+
+            return new float[]
             {
-                Label =  (step.Actions[playerId] ?? GameAction.Stay).ToString(),
-                Features = new float[]
-                {
-                    player.Alive ? 1 : 0,
-                    player.Respawning,
-                    player.BombsLeft,
-                    topLeftTile,
-                    topCenterTile,
-                    topRightTile,
-                    leftTile,
-                    rightTile,
-                    bottomLeftTile,
-                    bottomCenterTile,
-                    bottomRightTile,
-                }
+                player.Alive ? 1 : 0,
+                player.Respawning,
+                player.BombsLeft,
+                topLeftTile,
+                topCenterTile,
+                topRightTile,
+                leftTile,
+                rightTile,
+                bottomLeftTile,
+                bottomCenterTile,
+                bottomRightTile,
             };
         }
 
@@ -57,14 +62,14 @@ namespace Bomberjam.Bot.AI
 
             return new PlayerState
             {
-                TopLeftTile = GetBoardTile(step, x - 1, y - 1),
-                TopCenterTile = GetBoardTile(step, x, y - 1),
-                TopRightTile = GetBoardTile(step, x + 1, y - 1),
-                LeftTile = GetBoardTile(step, x - 1, y),
-                RightTile = GetBoardTile(step, x + 1, y),
-                BottomLeftTile = GetBoardTile(step, x - 1, y + 1),
-                BottomCenterTile = GetBoardTile(step, x - 1, y + 1),
-                BottomRightTile = GetBoardTile(step, x - 1, y + 1),
+                TopLeftTile = GetBoardTile(step.State, x - 1, y - 1),
+                TopCenterTile = GetBoardTile(step.State, x, y - 1),
+                TopRightTile = GetBoardTile(step.State, x + 1, y - 1),
+                LeftTile = GetBoardTile(step.State, x - 1, y),
+                RightTile = GetBoardTile(step.State, x + 1, y),
+                BottomLeftTile = GetBoardTile(step.State, x - 1, y + 1),
+                BottomCenterTile = GetBoardTile(step.State, x - 1, y + 1),
+                BottomRightTile = GetBoardTile(step.State, x - 1, y + 1),
                 Alive = (uint) (player.Alive ? 1 : 0),
                 Respawning = (uint) player.Respawning,
                 BombsLeft = (uint) player.BombsLeft,
@@ -72,12 +77,12 @@ namespace Bomberjam.Bot.AI
             };
         }
 
-        private static uint GetBoardTile(GameStateStep step, int x, int y)
+        private static uint GetBoardTile(GameState state, int x, int y)
         {
-            if (x < 0 || x >= step.State.Width || y < 0 || y >= step.State.Height) return '#';
+            if (x < 0 || x >= state.Width || y < 0 || y >= state.Height) return '#';
 
-            var position = x + y * step.State.Width;
-            return step.State.Tiles[position];
+            var position = x + y * state.Width;
+            return state.Tiles[position];
         }
         
         public class PlayerState

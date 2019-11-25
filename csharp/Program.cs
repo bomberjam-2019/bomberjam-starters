@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bomberjam.Bot.AI;
 using Bomberjam.Client;
+using Microsoft.ML;
 
 namespace Bomberjam.Bot
 {
@@ -23,47 +24,68 @@ namespace Bomberjam.Bot
 
         public static async Task Main()
         {
-            var trainer =
-                new GenericClassificationTrainer();
+//            var trainer =
+//                new GenericClassificationTrainer();
+//
+//            var loader = new ModelLoader<DataPoint>(BomberJamModel.GenerateDataPoint);
+//
+//            var (trainingSet, testSet) = loader.LoadData();
+//            trainer.Train(trainingSet, testSet);
 
-            var loader = new ModelLoader<DataPoint>(BomberJamModel.GenerateDataPoint);
+            
+            var mlContext = new MLContext(0);
 
-            var (trainingSet, testSet) = loader.LoadData();
-            trainer.Train(trainingSet, testSet);
+            var loadedModel = mlContext.Model.Load(@"C:\Dev\bomberjam\csharp\trained-model", out var modelInputSchema);    
+            
+            var predictionEngine = mlContext.Model.CreatePredictionEngine<DataPoint, Prediction>(loadedModel);
 
-//            await SimulateExample();
-//            
-//            await PlayInBrowserExample();
+//            await SimulateExample(x => Enum.Parse<GameAction>(predictionEngine.Predict(x).PredictedLabel));
+            
+            await PlayInBrowserExample(x => Enum.Parse<GameAction>(predictionEngine.Predict(x).PredictedLabel));
         }
 
-        private static async Task SimulateExample()
+        private static async Task SimulateExample(Func<DataPoint, GameAction> getMove)
         {
             var simulation = await BomberjamRunner.StartSimulation();
 
             while (!simulation.IsFinished)
             {
-                Console.WriteLine(simulation.CurrentState.Tiles);
+//                Console.WriteLine(simulation.CurrentState.Tiles);
+                var currentState = simulation.CurrentState;
 
-                var playerActions = GenerateRandomActionForAllPlayers(simulation.CurrentState);
+                var playerActions = simulation.CurrentState.Players.ToDictionary(
+                    p => p.Key,
+                    p => getMove(new DataPoint()
+                    {
+                        Features =  BomberJamModel.GetStateFeatures(currentState, p.Key)
+                    }));
+                
                 simulation = await simulation.GetNext(playerActions);
             }
         }
 
-        private static IDictionary<string, GameAction> GenerateRandomActionForAllPlayers(GameState state)
+//        private static IDictionary<string, GameAction> GenerateRandomActionForAllPlayers(GameState state)
+//        {
+//            return state.Players.ToDictionary(
+//                p => p.Key,
+//                p => GenerateRandomAction(state, p.Key));
+//        }
+
+        private static GameAction GenerateRandomAction(GameState state, string myPlayerId, Func<DataPoint, GameAction> getMove)
         {
-            return state.Players.ToDictionary(
-                p => p.Key,
-                p => GenerateRandomAction(state, p.Key));
+            var move = getMove(new DataPoint()
+            {
+                Features =  BomberJamModel.GetStateFeatures(state, myPlayerId)
+            });
+            
+            Console.WriteLine($"{myPlayerId} {move}");
+
+            return move;
         }
 
-        private static GameAction GenerateRandomAction(GameState state, string myPlayerId)
+        private static Task PlayInBrowserExample(Func<DataPoint, GameAction> getMove)
         {
-            return AllActions[Rng.Next(AllActions.Length)];
-        }
-
-        private static Task PlayInBrowserExample()
-        {
-            return BomberjamRunner.PlayInBrowser(new BomberjamOptions(GenerateRandomAction));
+            return BomberjamRunner.PlayInBrowser(new BomberjamOptions((s, p) => GenerateRandomAction(s, p, getMove)));
         }
     }
 }
