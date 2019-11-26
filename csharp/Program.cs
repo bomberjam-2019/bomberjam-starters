@@ -27,8 +27,8 @@ namespace Bomberjam.Bot
 
         public static async Task Main()
         {
-            var trainer = new AccordClassificationTrainer(AccordClassificationTrainer.AlgorithmType.DecisionTree);
-            //var trainer = new GenericClassificationTrainer(GenericClassificationTrainer.AlgorithmType.LightGbm);
+            //var trainer = new AccordClassificationTrainer(AccordClassificationTrainer.AlgorithmType.DecisionTree);
+            var trainer = new GenericClassificationTrainer(GenericClassificationTrainer.AlgorithmType.LightGbm);
             
             Train(trainer);
             //await Game(trainer);
