@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using Accord.Statistics.Kernels;
 using Bomberjam.Client;
 using Microsoft.ML.Data;
 
@@ -28,15 +32,15 @@ namespace Bomberjam.Bot.AI
             var x = player.X;
             var y = player.Y;
 
-            var topLeftTile = GetBoardTile(state, x - 1, y - 1);
-            var topCenterTile = GetBoardTile(state, x, y - 1);
-            var topRightTile = GetBoardTile(state, x + 1, y - 1);
-            var leftTile = GetBoardTile(state, x - 1, y);
-            var rightTile = GetBoardTile(state, x + 1, y);
-            var currentTile = GetBoardTile(state, x, y);
-            var bottomLeftTile = GetBoardTile(state, x - 1, y + 1);
-            var bottomCenterTile = GetBoardTile(state, x - 1, y + 1);
-            var bottomRightTile = GetBoardTile(state, x - 1, y + 1);
+            var topLeftTile = GetBoardTile(state, x - 1, y - 1, playerId);
+            var topCenterTile = GetBoardTile(state, x, y - 1, playerId);
+            var topRightTile = GetBoardTile(state, x + 1, y - 1, playerId);
+            var leftTile = GetBoardTile(state, x - 1, y, playerId);
+            var rightTile = GetBoardTile(state, x + 1, y, playerId);
+            var currentTile = GetBoardTile(state, x, y, playerId);
+            var bottomLeftTile = GetBoardTile(state, x - 1, y + 1, playerId);
+            var bottomCenterTile = GetBoardTile(state, x - 1, y + 1, playerId);
+            var bottomRightTile = GetBoardTile(state, x - 1, y + 1, playerId);
 
             return new float[]
             {
@@ -61,15 +65,15 @@ namespace Bomberjam.Bot.AI
             var x = player.X;
             var y = player.Y;
 
-            var twoTopTile = GetBoardTile(state, x, y - 2);
-            var topCenterTile = GetBoardTile(state, x, y - 1);
-            var leftTile = GetBoardTile(state, x - 1, y);
-            var twoLeftTile = GetBoardTile(state, x - 2, y);
-            var rightTile = GetBoardTile(state, x + 1, y);
-            var twoRightTile = GetBoardTile(state, x + 2, y);
-            var bottomCenterTile = GetBoardTile(state, x - 1, y + 1);
-            var twoBottomCenterTile = GetBoardTile(state, x - 1, y + 1);
-            var currentTile = GetBoardTile(state, x, y);
+            var twoTopTile = GetBoardTile(state, x, y - 2, playerId);
+            var topCenterTile = GetBoardTile(state, x, y - 1, playerId);
+            var leftTile = GetBoardTile(state, x - 1, y, playerId);
+            var twoLeftTile = GetBoardTile(state, x - 2, y, playerId);
+            var rightTile = GetBoardTile(state, x + 1, y, playerId);
+            var twoRightTile = GetBoardTile(state, x + 2, y, playerId);
+            var bottomCenterTile = GetBoardTile(state, x - 1, y + 1, playerId);
+            var twoBottomCenterTile = GetBoardTile(state, x - 1, y + 1, playerId);
+            var currentTile = GetBoardTile(state, x, y, playerId);
 
             return new float[]
             {
@@ -96,14 +100,14 @@ namespace Bomberjam.Bot.AI
 
             return new PlayerState
             {
-                TopLeftTile = GetBoardTile(step.State, x - 1, y - 1),
-                TopCenterTile = GetBoardTile(step.State, x, y - 1),
-                TopRightTile = GetBoardTile(step.State, x + 1, y - 1),
-                LeftTile = GetBoardTile(step.State, x - 1, y),
-                RightTile = GetBoardTile(step.State, x + 1, y),
-                BottomLeftTile = GetBoardTile(step.State, x - 1, y + 1),
-                BottomCenterTile = GetBoardTile(step.State, x - 1, y + 1),
-                BottomRightTile = GetBoardTile(step.State, x - 1, y + 1),
+                TopLeftTile = GetBoardTile(step.State, x - 1, y - 1, playerId),
+                TopCenterTile = GetBoardTile(step.State, x, y - 1, playerId),
+                TopRightTile = GetBoardTile(step.State, x + 1, y - 1, playerId),
+                LeftTile = GetBoardTile(step.State, x - 1, y, playerId),
+                RightTile = GetBoardTile(step.State, x + 1, y, playerId),
+                BottomLeftTile = GetBoardTile(step.State, x - 1, y + 1, playerId),
+                BottomCenterTile = GetBoardTile(step.State, x - 1, y + 1, playerId),
+                BottomRightTile = GetBoardTile(step.State, x - 1, y + 1, playerId),
                 Alive = (uint) (player.Alive ? 1 : 0),
                 Respawning = (uint) player.Respawning,
                 BombsLeft = (uint) player.BombsLeft,
@@ -111,12 +115,47 @@ namespace Bomberjam.Bot.AI
             };
         }
 
-        private static uint GetBoardTile(GameState state, int x, int y)
+        enum Tile
         {
-            if (x < 0 || x >= state.Width || y < 0 || y >= state.Height) return '#';
+            Block,
+            BreakableBlock,
+            Ennemy,
+            Bomb,
+            FreeSpace,
+            Bonus,
+            Explosion,
+        }
 
+        private static Dictionary<char, Tile> TileConverter = new Dictionary<char, Tile>()
+        {
+            {'+', Tile.BreakableBlock},
+            {'.', Tile.FreeSpace},
+            {'#', Tile.Block},
+            {'*', Tile.Explosion},
+        };
+
+        private static uint GetBoardTile(GameState state, int x, int y, string self)
+        {
+            if (x < 0 || x >= state.Width || y < 0 || y >= state.Height) return (uint) Tile.Block;
+
+            if (state.Bombs.Any(b => b.Value.X == x && b.Value.Y == y))
+            {
+                return (uint) Tile.Bomb;
+            }
+            
+            if (state.Players.Any(b => b.Value.Id != self && b.Value.X == x && b.Value.Y == y))
+            {
+                return (uint) Tile.Ennemy;
+            }
+            
+            if (state.Bonuses.Any(b => b.Value.X == x && b.Value.Y == y))
+            {
+                return (uint) Tile.Bonus;
+            }
+            
             var position = x + y * state.Width;
-            return state.Tiles[position];
+            var ch = state.Tiles[position];
+            return (uint) TileConverter[ch];
         }
         
         public class PlayerState

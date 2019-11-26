@@ -1,94 +1,67 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Bomberjam.Bot.AI;
 using Microsoft.ML;
-using Microsoft.ML.Data;
 
 namespace Bomberjam.Bot
 {
-
-    public class DataPoint
+    public class GenericClassificationTrainer : ITrainer<DataPoint, string>
     {
-        public string Label { get; set; }
+        private readonly AlgorithmType _algorithmType;
 
-        // Size = number of features
-        [VectorType(11)] 
-        public float[] Features { get; set; }
-    }
-
-    // Class used to capture predictions.
-    public class Prediction
-    {
-        // Predicted label from the trainer.
-        [ColumnName("PredictedLabel")] 
-        public string PredictedLabel { get; set; }
-    }
-
-
-    public class GenericClassificationTrainer
-
-    {
-        private MLContext _mlContext;
-
-        public GenericClassificationTrainer()
+        public enum AlgorithmType
         {
+            NaiveBayes,
+            LbfgsMaximumEntropy,
+            LightGbm,
+        }
+        
+        private MLContext _mlContext;
+        private ITransformer _trainedModel;
+        private DataViewSchema _schema;
+        private PredictionEngine<DataPoint, Prediction> _predictionEngine;
+
+        public GenericClassificationTrainer(AlgorithmType algorithmType)
+        {
+            _algorithmType = algorithmType;
             _mlContext = new MLContext(0);
         }
-
-
-        public void Train(IEnumerable<DataPoint> trainingSet, 
-            IEnumerable<DataPoint> testSet)
+        
+        public void Train(IEnumerable<DataPoint> trainingSet)
         {
             _mlContext = new MLContext(0);
 
             var trainingDataView = _mlContext.Data.LoadFromEnumerable(trainingSet);
+            this._schema = trainingDataView.Schema;
+
+            IEstimator<ITransformer> trainingPipeline;
+            switch (_algorithmType)
+            {
+                case AlgorithmType.NaiveBayes:
+                    trainingPipeline = BuildAndTrainWithNaiveBayes();
+                    this._trainedModel = trainingPipeline.Fit(trainingDataView);
+                    break;
+                case AlgorithmType.LbfgsMaximumEntropy:
+                    trainingPipeline = BuildAndTrainWithLbfgs();
+                    this._trainedModel = trainingPipeline.Fit(trainingDataView);
+                    break;
+                case AlgorithmType.LightGbm:
+                    trainingPipeline = BuildAndTrainModelWithDecisionTree();
+                    this._trainedModel = trainingPipeline.Fit(trainingDataView);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
+            this._predictionEngine = this._mlContext.Model.CreatePredictionEngine<DataPoint, Prediction>(this._trainedModel);
+        }
+
+        public void ComputeMetrics(IEnumerable<DataPoint> testSet)
+        {
             var testDataView = _mlContext.Data.LoadFromEnumerable(testSet);
-
-            var trainingPipeline = BuildAndTrainModel();
-
-            var trainedModel = trainingPipeline.Fit(trainingDataView);
-            Evaluate(trainedModel, testDataView);
             
-            _mlContext.Model.Save(trainedModel, trainingDataView.Schema, "trained-model");
-
-            //var predictionEngine = this._mlContext.Model.CreatePredictionEngine<DataPoint, Prediction>(trainedModel);
-
-            //CustomEvaluate(s => predictionEngine.Predict(s), testSet);
-        }
-
-        public IEstimator<ITransformer> BuildAndTrainModel()
-        {
-            // STEP 3: Transform your data and add a learner
-            // Assign numeric values to text in the "Label" column, because only
-            // numbers can be processed during model training.
-            // Add a learning algorithm to the pipeline. e.g.(What type of iris is this?)
-            // Convert the Label back into original text (after converting to number in step 3)
-
-            var pipeline =
-                _mlContext.Transforms.Conversion.MapValueToKey(nameof(DataPoint.Label))
-                    .AppendCacheCheckpoint(_mlContext)
-                    .Append(_mlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy())
-                    .Append(
-                        this._mlContext.Transforms.Conversion.MapKeyToValue(
-                            inputColumnName: "PredictedLabel",
-                            outputColumnName: nameof(Prediction.PredictedLabel)
-                        ));
-            
-
-            return pipeline;
-        }
-
-
-        /// <summary>
-        ///     The Evaluate method executes the following tasks:
-        ///     - Loads the test dataset.
-        ///     - Creates the multiclass evaluator.
-        ///     - Evaluates the model and create metrics.
-        ///     - Displays the metrics.
-        /// </summary>
-        public void Evaluate(ITransformer predictionEngine, IDataView testDataView)
-        {
-            var metrics = _mlContext.MulticlassClassification.Evaluate(predictionEngine.Transform(testDataView));
+            var metrics = _mlContext.MulticlassClassification.Evaluate(this._trainedModel.Transform(testDataView));
             
             Console.WriteLine($"Micro Accuracy: {metrics.MicroAccuracy:F2}");
             Console.WriteLine($"Macro Accuracy: {metrics.MacroAccuracy:F2}");
@@ -102,37 +75,71 @@ namespace Bomberjam.Bot
 
             Console.WriteLine(metrics.ConfusionMatrix.GetFormattedConfusionTable());
         }
-        
 
-        public void CustomEvaluate(Func<DataPoint, Prediction> predictor, IEnumerable<DataPoint> states)
+        public Task Save(string path)
         {
-            float success = 0;
-            float failure = 0;
+            _mlContext.Model.Save(this._trainedModel, this._schema, path);
             
-                            
+            return Task.CompletedTask;
+        }
 
-            foreach (var state in states)
-            {
-                var expectedResult = state.Label;
-                state.Label = "";
-                var result = predictor(state);
-                
-//                Console.WriteLine($"{result.PredictedLabel} vs {expectedResult}");
-                
-                if (result.PredictedLabel  == expectedResult)
-                {
-                    ++success;
-                }
-                else
-                {
-                    ++failure;
-                }
-            }
+        public Task Load(string path)
+        {
+            var loadedModel = this._mlContext.Model.Load(path, out var modelInputSchema);
             
-            Console.WriteLine($"Success: {success}");
-            Console.WriteLine($"Failure: {failure}");
-            Console.WriteLine($"{(success/(failure+success)):F2}%");
+            this._predictionEngine = this._mlContext.Model.CreatePredictionEngine<DataPoint, Prediction>(loadedModel);
+            
+            return Task.CompletedTask;
+        }
 
+        public string Predict(DataPoint dataPoint)
+        {
+            return this._predictionEngine.Predict(dataPoint).PredictedLabel;
+        }
+        
+        public IEstimator<ITransformer> BuildAndTrainWithNaiveBayes()
+        {
+            var pipeline =
+                _mlContext.Transforms.Conversion.MapValueToKey(nameof(DataPoint.Label))
+                    .AppendCacheCheckpoint(_mlContext)
+                    .Append(_mlContext.MulticlassClassification.Trainers.NaiveBayes())
+                    .Append(
+                        this._mlContext.Transforms.Conversion.MapKeyToValue(
+                            inputColumnName: "PredictedLabel",
+                            outputColumnName: nameof(Prediction.PredictedLabel)
+                        ));
+            
+            return pipeline;
+        }
+
+        public IEstimator<ITransformer> BuildAndTrainWithLbfgs()
+        {
+            var pipeline =
+                _mlContext.Transforms.Conversion.MapValueToKey(nameof(DataPoint.Label))
+                    .AppendCacheCheckpoint(_mlContext)
+                    .Append(_mlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy())
+                    .Append(
+                        this._mlContext.Transforms.Conversion.MapKeyToValue(
+                            inputColumnName: "PredictedLabel",
+                            outputColumnName: nameof(Prediction.PredictedLabel)
+                        ));
+            
+            return pipeline;
+        }
+
+        public IEstimator<ITransformer> BuildAndTrainModelWithDecisionTree()
+        {
+            var pipeline =
+                _mlContext.Transforms.Conversion.MapValueToKey(nameof(DataPoint.Label))
+                    .AppendCacheCheckpoint(_mlContext)
+                    .Append(_mlContext.MulticlassClassification.Trainers.LightGbm())
+                    .Append(
+                        this._mlContext.Transforms.Conversion.MapKeyToValue(
+                            inputColumnName: "PredictedLabel",
+                            outputColumnName: nameof(Prediction.PredictedLabel)
+                        ));
+            
+            return pipeline;
         }
     }
 }

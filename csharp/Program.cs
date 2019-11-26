@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Bomberjam.Bot.AI;
+using Bomberjam.Bot.AI.AccordNet;
 using Bomberjam.Client;
 using Microsoft.ML;
 
@@ -11,6 +12,8 @@ namespace Bomberjam.Bot
     public class Program
     {
         private static readonly Random Rng = new Random(42);
+
+        private const string modelSavePath = @"F:\tmp\savedModel";
 
         private static readonly GameAction[] AllActions =
         {
@@ -24,25 +27,44 @@ namespace Bomberjam.Bot
 
         public static async Task Main()
         {
-//            var trainer =
-//                new GenericClassificationTrainer();
-//
-//            var loader = new ModelLoader<DataPoint>(BomberJamModel.GenerateDataPoint);
-//
-//            var (trainingSet, testSet) = loader.LoadData();
-//            trainer.Train(trainingSet, testSet);
+            var trainer = new AccordClassificationTrainer(AccordClassificationTrainer.AlgorithmType.DecisionTree);
+            //var trainer = new GenericClassificationTrainer(GenericClassificationTrainer.AlgorithmType.LightGbm);
+            
+            Train(trainer);
+            //await Game(trainer);
 
-//            
-//            var mlContext = new MLContext(0);
-//
-//            var loadedModel = mlContext.Model.Load(@"C:\Dev\bomberjam\csharp\trained-model", out var modelInputSchema);    
-//            
-//            var predictionEngine = mlContext.Model.CreatePredictionEngine<DataPoint, Prediction>(loadedModel);
-//
-//            await SimulateExample(x => Enum.Parse<GameAction>(predictionEngine.Predict(x).PredictedLabel));
-//            
-//            await PlayInBrowserExample(x => Enum.Parse<GameAction>(predictionEngine.Predict(x).PredictedLabel));
         }
+
+        public static void Train(ITrainer<DataPoint, string> trainer)
+        {
+            var loader = new ModelLoader<DataPoint>(BomberJamModel.GenerateDataPoint);
+
+            var (trainingSet, testSet) = loader.LoadData();
+            
+            trainer.Train(trainingSet);
+            
+            trainer.ComputeMetrics(testSet);
+
+            trainer.Save(modelSavePath);
+        }
+        
+        private static async Task TestGame(ITrainer<DataPoint, string> trainer)
+        {
+            var loader = new ModelLoader<DataPoint>(BomberJamModel.GenerateDataPoint);
+            var (trainingSet, _) = loader.LoadData();
+            
+            trainer.Train(trainingSet);
+            
+            await PlayInBrowserExample(x => Enum.Parse<GameAction>(trainer.Predict(x)));
+        }
+
+        private static async Task Game(ITrainer<DataPoint, string> trainer)
+        {
+            await trainer.Load(modelSavePath);
+
+            await PlayInBrowserExample(x => Enum.Parse<GameAction>(trainer.Predict(x)));
+        }
+
 
         private static async Task SimulateExample(Func<DataPoint, GameAction> getMove)
         {

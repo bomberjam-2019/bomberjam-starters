@@ -21,3 +21,6 @@ https://github.com/accord-net/framework/wiki/Classification
 
 
 Clustering: Unsupervised learning
+
+
+https://xamlbrewer.wordpress.com/2019/05/07/machine-learning-with-ml-net-in-uwp-binary-classification/
