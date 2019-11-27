@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Bomberjam.Client;
 
@@ -8,18 +6,6 @@ namespace Bomberjam.Bot
 {
     public class Program
     {
-        private static readonly Random Rng = new Random(42);
-
-        private static readonly GameAction[] AllActions =
-        {
-            GameAction.Stay,
-            GameAction.Left,
-            GameAction.Right,
-            GameAction.Up,
-            GameAction.Down,
-            GameAction.Bomb
-        };
-        
         public static async Task Main()
         {
             ParseGamelogExample("/path/to/some.gamelog");
@@ -41,32 +27,28 @@ namespace Bomberjam.Bot
 
         private static async Task SimulateExample()
         {
-            var simulation = await BomberjamRunner.StartSimulation();
+            var bots = new IBot[]
+            {
+                new RandomBot(),
+                new RandomBot(),
+                new RandomBot(),
+                new RandomBot()
+            };
+
+            var simulation = await BomberjamRunner.StartSimulation(bots);
             
             while (!simulation.IsFinished)
             {
-                Console.WriteLine(simulation.CurrentState.Tiles);
-                
-                var playerActions = GenerateRandomActionForAllPlayers(simulation.CurrentState);
-                simulation = await simulation.GetNext(playerActions);
+                await simulation.ExecuteNextTick();
             }
-        }
 
-        private static IDictionary<string, GameAction> GenerateRandomActionForAllPlayers(GameState state)
-        {
-            return state.Players.ToDictionary(
-                p => p.Key,
-                p => GenerateRandomAction(state, p.Key));
-        }
-
-        private static GameAction GenerateRandomAction(GameState state, string myPlayerId)
-        {
-            return AllActions[Rng.Next(AllActions.Length)];
+            Console.WriteLine(simulation.CurrentState.Tiles);
         }
 
         private static Task PlayInBrowserExample()
         {
-            return BomberjamRunner.PlayInBrowser(new BomberjamOptions(GenerateRandomAction));
+            var bot = new RandomBot();
+            return BomberjamRunner.PlayInBrowser(bot);
         }
     }
 }
