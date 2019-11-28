@@ -1,4 +1,4 @@
-const { startSimulation } = require('bomberjam-backend/dist/client');
+const { startSimulation } = require('bomberjam-backend');
 
 const allActions = ['stay', 'left', 'right', 'up', 'down', 'bomb'];
 
