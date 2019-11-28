@@ -53,10 +53,9 @@ async function parseGameData(filePath) {
 function formatTick({ state, actions }) {
     const inputs = [];
     const outputs = [];
-    const actionArray = Object.values(actions);
-    for (let player = 0; player < actionArray.length; player++) {
-        const actionTaken = ALL_ACTIONS[actionArray[player]];
-        inputs.push(stateToModelInput(player, state));
+    for (const playerId in state.players) {
+        const actionTaken = ALL_ACTIONS[actions[playerId]];
+        inputs.push(stateToModelInput(playerId, state));
         outputs.push(oneHotVector(ACTION_SIZE, actionTaken));
     }
 
@@ -66,9 +65,9 @@ function formatTick({ state, actions }) {
     };
 }
 
-function stateToModelInput(player, state) {
-    const otherPlayers = Object.values(state.players);
-    const currentPlayer = otherPlayers.splice(player, 1)[0];
+function stateToModelInput(playerId, state) {
+    const currentPlayer = state.players[playerId];
+    const otherPlayers = Object.values(state.players).filter(player => player.id !== playerId);
 
     const currentPlayerPositionMap = createMap(state.width, state.height);
     currentPlayerPositionMap[currentPlayer.x][currentPlayer.y] = 1;
@@ -108,5 +107,6 @@ function stateToModelInput(player, state) {
 }
 
 module.exports = {
-    get
+    get,
+    stateToModelInput
 };

@@ -5,7 +5,7 @@ const data = require("./src/data");
 const model = require("./src/model");
 
 const DATASET_SIZE = 1000;
-const GAMES_TO_LOAD = 100;
+const GAMES_TO_LOAD = 50;
 
 async function main() {
     const classifier = model.make();

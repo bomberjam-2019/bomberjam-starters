@@ -1,8 +1,5 @@
-const { classifierBot } = require("./classification/bots");
-const { scriptedBot } = require("./scripted/bots");
+const { classifierBot } = require("./classification/bot");
+const { scriptedBot } = require("./scripted/bot");
+const { dumbBot } = require("./dumb/bot");
 
-function dumbBot() {
-    return "bomb";
-}
-
-module.exports = [classifierBot, dumbBot, dumbBot, dumbBot];
+module.exports = [dumbBot, dumbBot, classifierBot, dumbBot];
