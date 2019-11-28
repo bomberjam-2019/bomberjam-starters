@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Bomberjam.Client;
 
@@ -8,28 +6,16 @@ namespace Bomberjam.Bot
 {
     public class Program
     {
-        private static readonly Random Rng = new Random(42);
-
-        private static readonly GameAction[] AllActions =
-        {
-            GameAction.Stay,
-            GameAction.Left,
-            GameAction.Right,
-            GameAction.Up,
-            GameAction.Down,
-            GameAction.Bomb
-        };
-        
         public static async Task Main()
         {
-            ParseGamelogExemple("/path/to/some.gamelog");
+            ParseGamelogExample("/path/to/some.gamelog");
             
-            await SimulateExemple();
+            await SimulateExample();
             
-            await PlayInBrowserExemple();
+            await PlayInBrowserExample();
         }
 
-        private static void ParseGamelogExemple(string path)
+        private static void ParseGamelogExample(string path)
         {
             var gamelog = new Gamelog(path);
 
@@ -39,34 +25,31 @@ namespace Bomberjam.Bot
             }
         }
 
-        private static async Task SimulateExemple()
+        private static async Task SimulateExample()
         {
-            var simulation = await BomberjamRunner.StartSimulation();
+            var bots = new IBot[]
+            {
+                new RandomBot(),
+                new RandomBot(),
+                new RandomBot(),
+                new RandomBot()
+            };
+
+            const bool saveGamelogFile = true;
+            var simulation = await BomberjamRunner.StartSimulation(bots, saveGamelogFile);
             
             while (!simulation.IsFinished)
             {
-                Console.WriteLine(simulation.CurrentState.Tiles);
-                
-                var playerActions = GenerateRandomActionForAllPlayers(simulation.CurrentState);
-                simulation = await simulation.GetNext(playerActions);
+                await simulation.ExecuteNextTick();
             }
+
+            Console.WriteLine(simulation.CurrentState.Tiles);
         }
 
-        private static IDictionary<string, GameAction> GenerateRandomActionForAllPlayers(GameState state)
+        private static Task PlayInBrowserExample()
         {
-            return state.Players.ToDictionary(
-                p => p.Key,
-                p => GenerateRandomAction(state, p.Key));
-        }
-
-        private static GameAction GenerateRandomAction(GameState state, string myPlayerId)
-        {
-            return AllActions[Rng.Next(AllActions.Length)];
-        }
-
-        private static Task PlayInBrowserExemple()
-        {
-            return BomberjamRunner.PlayInBrowser(new BomberjamOptions(GenerateRandomAction));
+            var bot = new RandomBot();
+            return BomberjamRunner.PlayInBrowser(bot);
         }
     }
 }
