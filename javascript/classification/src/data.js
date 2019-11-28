@@ -6,7 +6,7 @@ const path = require("path");
 const readline = require("readline");
 
 const { oneHotVector, createMap } = require("./utils");
-const { TILE_NAMES, TILE_MAPPING, ALL_ACTIONS, ACTION_SIZE } = require("./game-constants");
+const { TILE_NAMES, TILE_MAPPING, ALL_ACTIONS, ACTION_SIZE, BOMB_MAX_COUNTDOWN, BONUSES } = require("./game-constants");
 
 const DATA_DIRECTORY = "./data";
 
@@ -25,6 +25,8 @@ async function get(startIndex, gamesToLoad) {
         outputs.push(...gameData.outputs);
         console.log("Game:", fileName, "Games:", ++games, "Ticks:", inputs.length);
     }
+
+    console.log("Creating tensors");
     console.groupEnd();
 
     return {
@@ -77,11 +79,6 @@ function stateToModelInput(playerId, state) {
         otherPlayersPositionMap[otherPlayer.x][otherPlayer.y] = 1;
     }
 
-    const bombPositionsMap = createMap(state.width, state.height);
-    for (const bomb of Object.values(state.bombs)) {
-        bombPositionsMap[bomb.x][bomb.y] = 1;
-    }
-
     const breakableTilesMap = createMap(state.width, state.height);
     const blockedTilesMap = createMap(state.width, state.height);
     for (let x = 0; x < state.width; x++) {
@@ -97,12 +94,35 @@ function stateToModelInput(playerId, state) {
         }
     }
 
+    const bombPositionsMap = createMap(state.width, state.height);
+    const bombRangesMap = createMap(state.width, state.height);
+    const bombCountdownsMap = createMap(state.width, state.height, BOMB_MAX_COUNTDOWN + 1);
+    for (const bomb of Object.values(state.bombs)) {
+        blockedTilesMap[bomb.x][bomb.y] = 1;
+        bombPositionsMap[bomb.x][bomb.y] = 1;
+        bombRangesMap[bomb.x][bomb.y] = bomb.range / Math.max(state.width, state.height);
+        bombCountdownsMap[bomb.x][bomb.y] = bomb.countdown / BOMB_MAX_COUNTDOWN + 1;
+    }
+
+    const bonusesMap = createMap(state.width, state.height);
+    for (const bonus of Object.values(state.bonuses)) {
+        bonusesMap[bonus.x][bonus.y] = BONUSES[bonus];
+    }
+
+    const currentPlayerBombsLeftMap = createMap(state.width, state.height, currentPlayer.bombsLeft / currentPlayer.maxBombs);
+    const currentPlayerBombRangeMap = createMap(state.width, state.height, currentPlayer.bombRange / Math.max(state.width, state.height));
+
     return [
         currentPlayerPositionMap,
         otherPlayersPositionMap,
-        bombPositionsMap,
         breakableTilesMap,
-        blockedTilesMap
+        blockedTilesMap,
+        bombPositionsMap,
+        bombRangesMap,
+        bombCountdownsMap,
+        bonusesMap,
+        currentPlayerBombsLeftMap,
+        currentPlayerBombRangeMap
     ];
 }
 

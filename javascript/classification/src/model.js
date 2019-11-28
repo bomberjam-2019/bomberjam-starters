@@ -2,16 +2,16 @@ const tf = require("@tensorflow/tfjs");
 require("@tensorflow/tfjs-node");
 
 const { BOARD, ACTION_SIZE } = require("./game-constants");
+const NUMBER_OF_CHANNELS = 10;
 
-// Model
+const INPUT_SHAPE = [NUMBER_OF_CHANNELS, BOARD.width, BOARD.height];
 const OUTPUT_SIZE = ACTION_SIZE;
-const NUMBER_OF_CHANNELS = 5;
 
 function make() {
     const model = tf.sequential();
 
     // Convolutions
-    model.add(tf.layers.conv2d({ inputShape: [NUMBER_OF_CHANNELS, BOARD.width, BOARD.height], dataFormat: "channelsFirst", filters: 32, kernelSize: 2, activation: "relu" }));
+    model.add(tf.layers.conv2d({ inputShape: INPUT_SHAPE, dataFormat: "channelsFirst", filters: 32, kernelSize: 2, activation: "relu" }));
     model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
     model.add(tf.layers.conv2d({ filters: 64, kernelSize: 2, activation: "relu" }));
     model.add(tf.layers.maxPooling2d({ poolSize: 2 }));

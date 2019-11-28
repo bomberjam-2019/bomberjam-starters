@@ -28,10 +28,19 @@ const BOARD = {
     height: 11
 }
 
+const BOMB_MAX_COUNTDOWN = 8;
+
+const BONUSES = {
+    "bomb": 1,
+    "fire": 2
+}
+
 module.exports = {
     TILE_NAMES,
     TILE_MAPPING,
     ALL_ACTIONS,
     ACTION_SIZE,
-    BOARD
+    BOARD,
+    BOMB_MAX_COUNTDOWN,
+    BONUSES
 };
