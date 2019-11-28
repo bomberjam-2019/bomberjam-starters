@@ -1,7 +1,7 @@
 ﻿open Bomberjam.Client
 open System
 
-let rng = Random 42
+let rng = Random()
 
 let allGameActions =
     Enum.GetValues typeof<GameAction>
@@ -14,9 +14,18 @@ let generateRandomAction (state: GameState) (myPlayerId: string) =
 
 let generateRandomActionFunc = Func<GameState, string, GameAction>(generateRandomAction)
 
+type RandomBot() =
+    interface IBot with
+        member this.GetAction(state, myPlayerId) =
+            generateRandomAction state myPlayerId
+
+let playInBrowserExample =
+    let bot = RandomBot()
+    BomberjamRunner.PlayInBrowser bot
+        |> Async.AwaitTask
+        |> Async.RunSynchronously
+
 [<EntryPoint>]
 let main _ =
-    let options = BomberjamOptions(generateRandomActionFunc)
-    let task = BomberjamRunner.PlayInBrowser options
-    task.GetAwaiter().GetResult() |> ignore
+    playInBrowserExample
     0
