@@ -6,9 +6,12 @@ const path = require("path");
 const readline = require("readline");
 
 const { oneHotVector, createMap } = require("./utils");
-const { TILE_NAMES, TILE_MAPPING, ALL_ACTIONS, ACTION_SIZE, BOMB_MAX_COUNTDOWN, BONUSES } = require("./game-constants");
+const { TILE_NAMES, TILE_MAPPING, ALL_ACTIONS, ACTION_SIZE, BOMB_MAX_COUNTDOWN, BONUSES, BOARD } = require("./game-constants");
 
 const DATA_DIRECTORY = "./data";
+
+const NUMBER_OF_FEATURES = 10;
+const DATA_SHAPE = [NUMBER_OF_FEATURES, BOARD.width, BOARD.height]
 
 async function get(startIndex, gamesToLoad) {
     console.group("\nParsing data");
@@ -96,7 +99,7 @@ function stateToModelInput(playerId, state) {
 
     const bombPositionsMap = createMap(state.width, state.height);
     const bombRangesMap = createMap(state.width, state.height);
-    const bombCountdownsMap = createMap(state.width, state.height, BOMB_MAX_COUNTDOWN + 1);
+    const bombCountdownsMap = createMap(state.width, state.height, 1);
     for (const bomb of Object.values(state.bombs)) {
         blockedTilesMap[bomb.x][bomb.y] = 1;
         bombPositionsMap[bomb.x][bomb.y] = 1;
@@ -106,7 +109,7 @@ function stateToModelInput(playerId, state) {
 
     const bonusesMap = createMap(state.width, state.height);
     for (const bonus of Object.values(state.bonuses)) {
-        bonusesMap[bonus.x][bonus.y] = BONUSES[bonus];
+        bonusesMap[bonus.x][bonus.y] = BONUSES[bonus.type];
     }
 
     const currentPlayerBombsLeftMap = createMap(state.width, state.height, currentPlayer.bombsLeft / currentPlayer.maxBombs);
@@ -128,5 +131,6 @@ function stateToModelInput(playerId, state) {
 
 module.exports = {
     get,
-    stateToModelInput
+    stateToModelInput,
+    DATA_SHAPE
 };

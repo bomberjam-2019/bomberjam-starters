@@ -14,7 +14,6 @@ class ClassifierBot {
     }
 
     getAction(state, myPlayerId) {
-        console.log(this);
         const actionStrings = Object.keys(ALL_ACTIONS);
         const input = tf.tensor4d([stateToModelInput(myPlayerId, state)]);
         const predictionTensor = this.model.predict(input);
@@ -24,7 +23,6 @@ class ClassifierBot {
         predictionTensor.dispose();
 
         const action = actionStrings[prediction];
-        //console.log(actionStrings, prediction, action);
 
         return action;
     }
