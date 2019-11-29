@@ -1,4 +1,4 @@
-import { startSimulation, IGameState, ActionCode, IBot } from 'bomberjam-backend/dist/client';
+import { startSimulation, IGameState, ActionCode, IBot } from 'bomberjam-backend';
 
 const allActions: ActionCode[] = ['stay', 'left', 'right', 'up', 'down', 'bomb'];
 

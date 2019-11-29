@@ -48,8 +48,15 @@ namespace Bomberjam.Bot
 
         private static Task PlayInBrowserExample()
         {
-            var bot = new RandomBot();
-            return BomberjamRunner.PlayInBrowser(bot);
+            var bots = new IBot[]
+            {
+                new RandomBot(),
+                new RandomBot(),
+                new RandomBot(),
+                new RandomBot()
+            };
+            
+            return BomberjamRunner.PlayInBrowser(bots);
         }
     }
 }

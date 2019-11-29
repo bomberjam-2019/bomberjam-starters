@@ -1,4 +1,4 @@
-const { startSimulation } = require('bomberjam-backend/dist/client');
+const { startSimulation } = require('bomberjam-backend');
 const { ClassifierBot } = require("./classification/bot");
 const { RandomBot } = require("./dumb/bot");
 
