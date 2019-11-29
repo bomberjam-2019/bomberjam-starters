@@ -12,20 +12,15 @@ let generateRandomAction (state: GameState) (myPlayerId: string) =
     let idx = rng.Next allGameActions.Length
     allGameActions.[idx]
 
-let generateRandomActionFunc = Func<GameState, string, GameAction>(generateRandomAction)
-
 type RandomBot() =
     interface IBot with
         member this.GetAction(state, myPlayerId) =
             generateRandomAction state myPlayerId
 
-let playInBrowserExample =
-    let bot = RandomBot()
-    BomberjamRunner.PlayInBrowser bot
-        |> Async.AwaitTask
-        |> Async.RunSynchronously
-
 [<EntryPoint>]
 let main _ =
-    playInBrowserExample
+    let bots = [| for _ in 1 .. 4 -> RandomBot() :> IBot |]
+    BomberjamRunner.PlayInBrowser bots
+        |> Async.AwaitTask
+        |> Async.RunSynchronously
     0
