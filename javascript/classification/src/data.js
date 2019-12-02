@@ -60,6 +60,11 @@ function formatTick({ state, actions }) {
     const outputs = [];
     for (const playerId in state.players) {
         const actionTaken = ALL_ACTIONS[actions[playerId]];
+        if (actionTaken === undefined) {
+            // There's no action at the end of a game
+            continue;
+        }
+
         inputs.push(stateToModelInput(playerId, state));
         outputs.push(oneHotVector(ACTION_SIZE, actionTaken));
     }

@@ -28,7 +28,9 @@ async function simulateGame(numberOfGames) {
 async function createBots() {
   const bots = [new ClassifierBot(), new ClassifierBot(), new ClassifierBot(), new ClassifierBot()];
   for (const bot of bots) {
-    await bot.init();
+    if (bot.init) {
+      await bot.init();
+    }
   }
 
   return bots;
