@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const readline = require("readline");
 
-const { oneHotVector, createMap } = require("./utils");
+const { oneHotVector, createMap, argmax, shuffle } = require("./utils");
 const { TILE_NAMES, TILE_MAPPING, ALL_ACTIONS, ACTION_SIZE, BOMB_MAX_COUNTDOWN, BONUSES, BOARD } = require("./game-constants");
 
 const DATA_DIRECTORY = "./data";
@@ -18,17 +18,42 @@ async function get(startIndex, gamesToLoad, playerIds = ["p1", "p2", "p3", "p4"]
     const inputs = [];
     const outputs = [];
     const fileNames = fs.readdirSync(DATA_DIRECTORY);
+    const parsedGameData = [];
 
-    let games = startIndex;
+    console.log("Loading games:", startIndex, "to", startIndex + gamesToLoad);
     const selectedFiles = fileNames.splice(startIndex, gamesToLoad);
     for (const fileName of selectedFiles) {
         const filePath = path.resolve(DATA_DIRECTORY, fileName);
         const gameData = await parseGameData(filePath, playerIds);
-        inputs.push(...gameData.inputs);
-        outputs.push(...gameData.outputs);
-        console.log("Game:", fileName, "Games:", ++games, "Ticks:", inputs.length);
+        for (let i = 0; i < gameData.inputs.length; i++) {
+            parsedGameData.push({
+                input: gameData.inputs[i],
+                output: gameData.outputs[i]
+            });
+        }
     }
 
+    console.log("Ticks parsed:", parsedGameData.length);
+    console.log("Building dataset with equally represented classes");
+    const actionDistribution = new Array(ACTION_SIZE).fill(0);
+    for (const { output } of parsedGameData) {
+        actionDistribution[argmax(output)]++;
+    }
+
+    const minActionRepresentation = Math.min(...actionDistribution);
+    
+    shuffle(parsedGameData);
+    const actionsSelected = new Array(ACTION_SIZE).fill(0);
+    for (const { input, output } of parsedGameData) {
+        const action = argmax(output);
+        if(actionsSelected[action] < minActionRepresentation) {
+            inputs.push(input);
+            outputs.push(output);
+            actionsSelected[action]++;
+        }
+    }
+
+    console.log("Ticks selected:", inputs.length);
     console.log("Creating tensors");
     console.groupEnd();
 

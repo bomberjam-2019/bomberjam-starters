@@ -1,5 +1,5 @@
 // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
-function shuffleInPlace(array) {
+function shuffle(array) {
     var j, x, i;
     for (i = array.length - 1; i > 0; i--) {
         j = Math.floor(Math.random() * (i + 1));
@@ -24,8 +24,16 @@ function createMap(width, height, defaultValue = 0) {
         .map(_ => (new Array(height)).fill(defaultValue));
 }
 
+function argmax(array) {
+    return array
+        .map((value, index) => ({ value, index }))
+        .reduce((max, current) => current.value > max.value ? current : max)
+        .index;
+}
+
 module.exports = {
-    shuffleInPlace,
+    shuffle,
     oneHotVector,
-    createMap
+    createMap,
+    argmax
 };

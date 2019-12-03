@@ -8,6 +8,8 @@ const DATASET_SIZE = 1000;
 const GAMES_TO_LOAD = 150;
 const playerIds = ["p4"];
 
+// TODO Use tf.Sequential.fitDataset
+// https://js.tensorflow.org/api/latest/#tf.Sequential.fitDataset
 async function main() {
     const classifier = model.make();
     let accuracyMetricIndex = null;
