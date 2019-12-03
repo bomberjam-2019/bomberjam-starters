@@ -13,7 +13,7 @@ const DATA_DIRECTORY = "./data";
 const NUMBER_OF_FEATURES = 10;
 const DATA_SHAPE = [NUMBER_OF_FEATURES, BOARD.width, BOARD.height]
 
-async function get(startIndex, gamesToLoad) {
+async function get(startIndex, gamesToLoad, playerIds = ["p1", "p2", "p3", "p4"]) {
     console.group("\nParsing data");
     const inputs = [];
     const outputs = [];
@@ -23,7 +23,7 @@ async function get(startIndex, gamesToLoad) {
     const selectedFiles = fileNames.splice(startIndex, gamesToLoad);
     for (const fileName of selectedFiles) {
         const filePath = path.resolve(DATA_DIRECTORY, fileName);
-        const gameData = await parseGameData(filePath);
+        const gameData = await parseGameData(filePath, playerIds);
         inputs.push(...gameData.inputs);
         outputs.push(...gameData.outputs);
         console.log("Game:", fileName, "Games:", ++games, "Ticks:", inputs.length);
@@ -38,13 +38,13 @@ async function get(startIndex, gamesToLoad) {
     };
 }
 
-async function parseGameData(filePath) {
+async function parseGameData(filePath, playerIds) {
     const inputs = [];
     const outputs = [];
     const fileStream = fs.createReadStream(filePath);
     const game = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
     for await (const tick of game) {
-        const formattedTick = formatTick(JSON.parse(tick));
+        const formattedTick = formatTick(JSON.parse(tick), playerIds);
         inputs.push(...formattedTick.inputs);
         outputs.push(...formattedTick.outputs);
     }
@@ -55,10 +55,14 @@ async function parseGameData(filePath) {
     };
 }
 
-function formatTick({ state, actions }) {
+function formatTick({ state, actions }, playerIds) {
     const inputs = [];
     const outputs = [];
     for (const playerId in state.players) {
+        if (!playerIds.includes(playerId)) {
+            continue;
+        }
+
         const actionTaken = ALL_ACTIONS[actions[playerId]];
         if (actionTaken === undefined) {
             // There's no action at the end of a game

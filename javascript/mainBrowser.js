@@ -4,15 +4,17 @@ const { ClassifierBot } = require("./classification/bot");
 play();
 
 async function play() {
-  const bot = await createBots();
+  const bots = await createBots();
   
-  playInBrowser(bot).catch(console.log);
+  playInBrowser(bots).catch(console.log);
 }
 
 async function createBots() {
   const bots = [new ClassifierBot(), new ClassifierBot(), new ClassifierBot(), new ClassifierBot()];
   for (const bot of bots) {
-    await bot.init();
+    if (bot.init) {
+      await bot.init();
+    }
   }
 
   return bots;

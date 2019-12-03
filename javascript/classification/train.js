@@ -5,7 +5,8 @@ const data = require("./src/data");
 const model = require("./src/model");
 
 const DATASET_SIZE = 1000;
-const GAMES_TO_LOAD = 50;
+const GAMES_TO_LOAD = 150;
+const playerIds = ["p4"];
 
 async function main() {
     const classifier = model.make();
@@ -13,7 +14,7 @@ async function main() {
 
     let start = 0;
     while (start < DATASET_SIZE - GAMES_TO_LOAD) {
-        const train = await data.get(start, GAMES_TO_LOAD);
+        const train = await data.get(start, GAMES_TO_LOAD, playerIds);
         console.group("\nFitting model |", tf.memory().numTensors, "tensors");
         const fitResult = await classifier.fit(train.inputs, train.outputs, {
             batchSize: 64,
@@ -35,7 +36,7 @@ async function main() {
     }
 
     console.group("\nEvaluating model");
-    const test = await data.get(start, GAMES_TO_LOAD);
+    const test = await data.get(start, GAMES_TO_LOAD, playerIds);
     const evalResult = classifier.evaluate(test.inputs, test.outputs, {
         batchSize: test.inputs.length
     });
