@@ -1,11 +1,12 @@
 import * as tf from '@tensorflow/tfjs-node';
 
-import { IBot, IGameState, IPlayer, startSimulation } from 'bomberjam-backend/dist/client';
+import { IGameState, IPlayer, startSimulation } from 'bomberjam-backend';
 
 import EvoBot from './bot';
+import { IGeneticBot } from './IGeneticBot';
 import { NeuralNetwork } from './neuralNetwork';
 
-type botDictionnary = { [index: string]: EvoBot };
+type botDictionnary = { [index: string]: IGeneticBot };
 
 export default class GenerationManager {
   private numberOfGames: number;
@@ -72,12 +73,18 @@ export default class GenerationManager {
     this.lastGenerationResults = await allGames;
   }
 
-  async simulateGameAsync(bots: IBot[], saveGamelog: boolean): Promise<IGameState> {
+  async simulateGameAsync(bots: IGeneticBot[], saveGamelog: boolean): Promise<IGameState> {
     return new Promise<IGameState>(resolve => {
       const simulation = startSimulation(bots, saveGamelog);
       while (!simulation.isFinished) {
         simulation.executeNextTick();
       }
+
+      for (const bot of bots) {
+        simulation.currentState.players[bot.id] = simulation.currentState.players[bot.gameId];
+        delete simulation.currentState.players[bot.gameId];
+      }
+
       resolve(simulation.currentState);
     });
   }

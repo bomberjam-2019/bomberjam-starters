@@ -1,10 +1,8 @@
-import { playInBrowser, IGameState, ActionCode, IBot } from 'bomberjam-backend';
-
-const allActions: ActionCode[] = ['stay', 'left', 'right', 'up', 'down', 'bomb'];
+import { ActionCode, AllActions, IBot, IGameState, playInBrowser } from 'bomberjam-backend';
 
 class RandomBot implements IBot {
   getAction(state: IGameState, myPlayerId: string) {
-    return allActions[Math.floor(Math.random() * allActions.length)];
+    return Object.keys(AllActions)[Math.floor(Math.random() * Object.keys(AllActions).length)] as ActionCode;
   }
 }
 

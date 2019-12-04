@@ -1,15 +1,17 @@
 import * as tf from '@tensorflow/tfjs-node';
 
-import { ActionCode, AllActions, BonusCode, IBot, ISimpleGameState } from 'bomberjam-backend/dist/client';
+import { ActionCode, AllActions, BonusCode, ISimpleGameState } from 'bomberjam-backend';
 
+import { IGeneticBot } from './IGeneticBot';
 import { NeuralNetwork } from './neuralNetwork';
 
 type tilesType = '*' | '#' | '+' | '*' | 'm' | 'e' | 'b' | 'f' | 'x';
 
-export default class EvoBot implements IBot {
+export default class EvoBot implements IGeneticBot {
   private readonly allActions = Object.values(AllActions);
   brain: NeuralNetwork;
-  readonly id: string;
+  id: string;
+  gameId!: string;
 
   constructor(brain: NeuralNetwork, id: string = 'evoBot') {
     this.brain = brain;
@@ -21,6 +23,7 @@ export default class EvoBot implements IBot {
   }
 
   getAction(state: ISimpleGameState, myPlayerId:string): ActionCode {
+    this.gameId = myPlayerId;
     let resultIndex = 0;
     tf.tidy(() => {
       const inputs = this.createInput(state);
@@ -52,7 +55,7 @@ export default class EvoBot implements IBot {
 
     for (const playerId in state.players) {
       const playerPosition = this.coordToTileIndex(state.players[playerId].x, state.players[playerId].y, state.width);
-      tiles = this.replaceCharAt(tiles, playerPosition, playerId === this.id ? 'm' : 'e');
+      tiles = this.replaceCharAt(tiles, playerPosition, playerId === this.gameId ? 'm' : 'e');
     }
 
     for (const bonusId in state.bonuses) {
@@ -63,13 +66,13 @@ export default class EvoBot implements IBot {
     let inputs = tiles.split('').map(a => {
       return a.charCodeAt(0) / 1000;
     });
-
+    
     inputs.push(state.tick);
     inputs.push(state.suddenDeathCountdown);
-    inputs.push(state.players[this.id].score);
+    inputs.push(state.players[this.gameId].score);
 
     for (const playerId in state.players) {
-      if (this.id != playerId) {
+      if (this.gameId != playerId) {
         inputs.push(state.players[playerId].score);
       }
     }
@@ -86,15 +89,32 @@ export default class EvoBot implements IBot {
   }
 }
 
-export class RandomBot implements IBot {
+export class RandomBot implements IGeneticBot {
+  
+  brain!: NeuralNetwork;
+
   private readonly allActions = Object.values(AllActions);
-  readonly id: string;
+  id: string;
+  gameId!: string;
 
   constructor(id: string) {
     this.id = id;
   }
 
+  dispose() {
+    // Got no brain :(
+  }
+
+  makeChild (id: string) {
+    return new RandomBot(this.id);
+  }
+
+  mutate() {
+    // I dont mutate :(
+  }
+
   getAction(state: ISimpleGameState, myPlayerId: string): ActionCode {
+    this.gameId = myPlayerId;
     return this.allActions[Math.floor(Math.random() * this.allActions.length)] as ActionCode;
   }
 }

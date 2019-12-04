@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs-node';
 
 import GenerationManager from './generationManager';
-import { AllActions } from 'bomberjam-backend/dist/client';
 
 (async () => {
   try {
@@ -11,7 +10,7 @@ import { AllActions } from 'bomberjam-backend/dist/client';
     // const layers = await tf.loadLayersModel('file://./last-bot/model.json');
     // model.add(layers);
 
-    const generationManager = new GenerationManager(1);
+    const generationManager = new GenerationManager(4);
 
     while (true) {
       await generationManager.runGeneration();
