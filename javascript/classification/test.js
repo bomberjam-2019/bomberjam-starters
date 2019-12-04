@@ -20,9 +20,13 @@ const models = {
         modelName: "cnn-all-players-350-games",
         playerIds: undefined
     },
+    "cnn-3x3-2d-all-1000": {
+        modelName: "cnn-3x3-2d-all-1000",
+        playerIds: undefined
+    },
 }
 
-const modelToTest = models["cnn-p4-450"];
+const modelToTest = models["cnn-3x3-2d-all-1000"];
 
 async function main() {
     const classifier = await tf.loadLayersModel(`file://./trained-models/${modelToTest.modelName}/model.json`);

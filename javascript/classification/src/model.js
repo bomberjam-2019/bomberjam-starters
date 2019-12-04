@@ -8,18 +8,18 @@ function make() {
     const model = tf.sequential();
 
     // Convolutions
-    model.add(tf.layers.conv2d({ inputShape: DATA_SHAPE, dataFormat: "channelsFirst", filters: 32, kernelSize: 2, activation: "relu" }));
+    model.add(tf.layers.conv2d({ inputShape: DATA_SHAPE, dataFormat: "channelsFirst", filters: 32, kernelSize: 3, activation: "relu" }));
     model.add(tf.layers.dropout({ rate : 0.15 }));
-    model.add(tf.layers.conv2d({ filters: 32, kernelSize: 2, activation: "relu" }));
+
+    model.add(tf.layers.conv2d({ filters: 64, kernelSize: 3, activation: "relu" }));
     model.add(tf.layers.dropout({ rate : 0.15 }));
-    model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
     
-    model.add(tf.layers.conv2d({ filters: 64, kernelSize: 2, activation: "relu" }));
+    model.add(tf.layers.conv2d({ filters: 128, kernelSize: 3, activation: "relu" }));
     model.add(tf.layers.dropout({ rate : 0.15 }));
-    model.add(tf.layers.maxPooling2d({ poolSize: 2 }));
 
     // Classification
     model.add(tf.layers.flatten());
+    model.add(tf.layers.dense({ units: 64, activation: "relu" }));
     model.add(tf.layers.dense({ units: 32, activation: "relu" }));
     model.add(tf.layers.dense({ units: ACTION_SIZE, activation: "softmax" }));
 

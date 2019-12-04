@@ -4,9 +4,9 @@ require("@tensorflow/tfjs-node");
 const data = require("./src/data");
 const model = require("./src/model");
 
-const DATASET_SIZE = 1000;
-const GAMES_TO_LOAD = 150;
-const playerIds = ["p4"];
+const DATASET_SIZE = 3000;
+const GAMES_TO_LOAD = 50;
+const playerIds = undefined;
 
 // TODO Use tf.Sequential.fitDataset
 // https://js.tensorflow.org/api/latest/#tf.Sequential.fitDataset
