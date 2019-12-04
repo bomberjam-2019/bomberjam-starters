@@ -1,6 +1,5 @@
 const { startSimulation } = require('bomberjam-backend');
-const { ClassifierBot } = require("./classification/bot");
-const { RandomBot } = require("./dumb/bot");
+const { classifierBot, RandomBot } = require("./bots");
 
 // You can pass an argument for the number of games to play.
 // Defaults to 1.
@@ -26,12 +25,11 @@ async function simulateGame(numberOfGames) {
 }
 
 async function createBots() {
-    const modelFolderPath = "./trained-models/cnn-3x3-2d-all-1000"
     const bots = [
-        new ClassifierBot(modelFolderPath),
-        new ClassifierBot(modelFolderPath),
-        new ClassifierBot(modelFolderPath),
-        new ClassifierBot(modelFolderPath)
+        classifierBot.new(),
+        classifierBot.new(),
+        classifierBot.new(),
+        classifierBot.new()
     ];
 
     for (const bot of bots) {
