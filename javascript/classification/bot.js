@@ -5,12 +5,13 @@ const { stateToModelInput } = require("./src/data");
 const { ALL_ACTIONS } = require("./src/game-constants");
 
 class ClassifierBot {
-    constructor() {
+    constructor(modelFolderPath) {
         this.model = null;
+        this.modelFolderPath = modelFolderPath;
     }
 
     async init() {
-        this.model = await tf.loadLayersModel("file://./bomberjam-cnn.tfm/model.json");
+        this.model = await tf.loadLayersModel(`file://${this.modelFolderPath}/model.json`);
     }
 
     getAction(state, myPlayerId) {
