@@ -1,7 +1,5 @@
-const classifierBot = require("./classification/bot");
-const { RandomBot } = require("./bots/dumb/bot");
+const deepCnn = require("./deep-cnn");
 
 module.exports = {
-    classifierBot,
-    RandomBot
+    bot: deepCnn
 }

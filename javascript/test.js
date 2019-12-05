@@ -2,37 +2,17 @@ const tf = require("@tensorflow/tfjs");
 require("@tensorflow/tfjs-node");
 
 const data = require("./src/data");
+const { bot } = require("./bots");
 const { ALL_ACTIONS } = require("./src/game-constants");
 const actionStrings = Object.keys(ALL_ACTIONS);
 
 const GAMES_TO_LOAD = 25;
 
-const models = {
-    "cnn-p4-450": {
-        modelName: "cnn-p4-450-games",
-        playerIds: ["p4"]
-    },
-    "cnn-p4-900-equalized": {
-        modelName: "cnn-p4-900-games-equalized",
-        playerIds: ["p4"]
-    },
-    "cnn-all-350": {
-        modelName: "cnn-all-players-350-games",
-        playerIds: undefined
-    },
-    "cnn-3x3-2d-all-1000": {
-        modelName: "cnn-3x3-2d-all-1000",
-        playerIds: undefined
-    },
-}
-
-const modelToTest = models["cnn-3x3-2d-all-1000"];
-
 async function main() {
-    const classifier = await tf.loadLayersModel(`file://./trained-models/${modelToTest.modelName}/model.json`);
+    const classifier = await tf.loadLayersModel(`file://./trained-models/${bot.modelName}/model.json`);
 
-    console.group("\nEvaluating model", modelToTest.modelName);
-    const test = await data.get(0, GAMES_TO_LOAD, modelToTest.playerIds);
+    console.group("\nEvaluating model", bot.modelName);
+    const test = await data.get(0, GAMES_TO_LOAD, bot.gameStateToModelInputConverter);
 
     console.log("Making predictions");
     const predictionsTensor = classifier.predict(test.inputs);

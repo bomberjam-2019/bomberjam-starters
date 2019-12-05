@@ -1,10 +1,12 @@
 const tf = require("@tensorflow/tfjs");
 require("@tensorflow/tfjs-node");
 
-const { ACTION_SIZE } = require("./game-constants");
+const { ACTION_SIZE } = require("../../src/game-constants");
 const { DATA_SHAPE } = require("./data");
 
-function make() {
+const modelName = "cnn-3x3-2d-all-1000";
+
+function buildModel() {
     const model = tf.sequential();
 
     // Convolutions
@@ -33,5 +35,6 @@ function make() {
 }
 
 module.exports = {
-    make
+    modelName,
+    buildModel
 };

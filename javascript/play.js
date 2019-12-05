@@ -1,5 +1,5 @@
 const { playInBrowser } = require('bomberjam-backend');
-const { classifierBot, RandomBot } = require("./bots");
+const { bot } = require("./bots");
 
 play();
 
@@ -10,10 +10,10 @@ async function play() {
 
 async function createBots() {
     const bots = [
-        classifierBot.new(),
-        classifierBot.new(),
-        classifierBot.new(),
-        classifierBot.new()
+        bot.newBot(),
+        bot.newBot(),
+        bot.newBot(),
+        bot.newBot()
     ];
 
     for (const bot of bots) {

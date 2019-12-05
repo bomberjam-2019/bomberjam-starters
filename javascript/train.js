@@ -2,23 +2,20 @@ const tf = require("@tensorflow/tfjs");
 require("@tensorflow/tfjs-node");
 
 const data = require("./src/data");
-const model = require("./src/model");
+const { bot } = require("./bots");
 
 const DATASET_SIZE = 3000;
 const GAMES_TO_LOAD = 50;
-const playerIds = undefined;
 
-// TODO Use tf.Sequential.fitDataset
-// https://js.tensorflow.org/api/latest/#tf.Sequential.fitDataset
 async function main() {
-    const classifier = model.make();
+    const model = bot.buildModel();
     let accuracyMetricIndex = null;
 
     let start = 0;
     while (start < DATASET_SIZE - GAMES_TO_LOAD) {
-        const train = await data.get(start, GAMES_TO_LOAD, playerIds);
+        const train = await data.get(start, GAMES_TO_LOAD, bot.gameStateToModelInputConverter);
         console.group("\nFitting model |", tf.memory().numTensors, "tensors");
-        const fitResult = await classifier.fit(train.inputs, train.outputs, {
+        const fitResult = await model.fit(train.inputs, train.outputs, {
             batchSize: 64,
             epochs: 10,
             shuffle: true,
@@ -31,15 +28,15 @@ async function main() {
             accuracyMetricIndex = fitResult.params.metrics.indexOf("acc");
         }
 
-        classifier.save("file://./bomberjam-cnn.tfm");
+        model.save(`file://./trained-models/${bot.modelName}`);
         console.groupEnd();
 
         start += GAMES_TO_LOAD;
     }
 
     console.group("\nEvaluating model");
-    const test = await data.get(start, GAMES_TO_LOAD, playerIds);
-    const evalResult = classifier.evaluate(test.inputs, test.outputs, {
+    const test = await data.get(start, GAMES_TO_LOAD, bot.gameStateToModelInputConverter);
+    const evalResult = model.evaluate(test.inputs, test.outputs, {
         batchSize: test.inputs.length
     });
     const accuracy = await evalResult[accuracyMetricIndex].data();
