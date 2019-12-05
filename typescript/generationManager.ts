@@ -38,14 +38,12 @@ export default class GenerationManager {
     let bots: botDictionnary = {};
 
     for (var i = 0; i < this.polulationSize; i++) {
-      const brain = new NeuralNetwork(149, 8, 6, this.model);
+      const brain = new NeuralNetwork(this.model);
       const bot = new EvoBot(brain.copy(), this.generateBotName(i));
       bots[bot.id] = bot;
     }
     return bots;
   }
-
-  private CloneModel(model: tf.Sequential) { }
 
   async runGeneration() {
     let games: Promise<IGameState>[] = [];
@@ -67,16 +65,22 @@ export default class GenerationManager {
   async simulateGameAsync(bots: IGeneticBot[], saveGamelog: boolean): Promise<IGameState> {
     return new Promise<IGameState>(resolve => {
       const simulation = startSimulation(bots, saveGamelog);
-      while (simulation.currentState.tick < 200) {
+      while (simulation.currentState.suddenDeathCountdown > 0) {
         simulation.executeNextTick();
       }
 
+      const gameResult = JSON.parse(JSON.stringify(simulation.currentState));
+
       for (const bot of bots) {
-        simulation.currentState.players[bot.id] = simulation.currentState.players[bot.gameId];
-        delete simulation.currentState.players[bot.gameId];
+        gameResult.players[bot.id] = gameResult.players[bot.gameId];
+        delete gameResult.players[bot.gameId];
       }
 
-      resolve(simulation.currentState);
+      while (!simulation.isFinished) {
+        simulation.executeNextTick();
+      }
+
+      resolve(gameResult);
     });
   }
 

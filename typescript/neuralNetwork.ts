@@ -6,15 +6,9 @@ import { AllActions } from 'bomberjam-backend';
 import { gaussianRand } from './utils';
 
 export class NeuralNetwork {
-  private inputNodes: number;
-  private hiddenNodes: number;
-  private outputNodes: number;
   model: tf.Sequential;
 
-  constructor(inputNodes: number, hiddenNodes: number, outputNodes: number, model?: tf.Sequential) {
-    this.inputNodes = inputNodes;
-    this.hiddenNodes = hiddenNodes;
-    this.outputNodes = outputNodes;
+  constructor(model?: tf.Sequential) {
 
     if (model) {
       this.model = model;
@@ -29,13 +23,15 @@ export class NeuralNetwork {
 
   copy(): NeuralNetwork {
     const modelCopy = this.createModel();
-    const weights = this.model.getWeights();
-    const weightCopies = [];
-    for (let i = 0; i < weights.length; i++) {
-      weightCopies[i] = weights[i].clone();
-    }
-    modelCopy.setWeights(weightCopies);
-    return new NeuralNetwork(this.inputNodes, this.hiddenNodes, this.outputNodes, modelCopy);
+    tf.tidy(() => {
+      const weights = this.model.getWeights();
+      const weightCopies = [];
+      for (let i = 0; i < weights.length; i++) {
+        weightCopies[i] = weights[i].clone();
+      }
+      modelCopy.setWeights(weightCopies);
+    });
+    return new NeuralNetwork(modelCopy);
   }
 
   mutate(rate: number) {

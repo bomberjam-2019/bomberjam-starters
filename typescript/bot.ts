@@ -42,7 +42,7 @@ export default class EvoBot implements IGeneticBot {
   }
 
   mutate() {
-    this.brain.mutate(0.1);
+    this.brain.mutate(0.01);
   }
 
   private stateToModelInput(state: ISimpleGameState): number[][][] {
