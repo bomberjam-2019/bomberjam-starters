@@ -1,5 +1,10 @@
 import * as tf from '@tensorflow/tfjs-node';
 
+import { BOARD, MODEL_NUMBER_OF_FEATURES } from './constants';
+
+import { AllActions } from 'bomberjam-backend';
+import { gaussianRand } from './utils';
+
 export class NeuralNetwork {
   private inputNodes: number;
   private hiddenNodes: number;
@@ -44,7 +49,7 @@ export class NeuralNetwork {
         for (let j = 0; j < values.length; j++) {
           if (Math.random() < rate) {
             let w = values[j];
-            values[j] = w + this.gaussianRand();
+            values[j] = w + gaussianRand();
           }
         }
         let newTensor = tf.tensor(values, shape);
@@ -56,30 +61,30 @@ export class NeuralNetwork {
 
   createModel(): tf.Sequential {
     const model = tf.sequential();
+    const actionSize = Object.values(AllActions).length;
 
-    const hidden = tf.layers.dense({
-      inputShape: [this.inputNodes],
-      units: this.hiddenNodes,
-      activation: 'sigmoid'
-    });
-    model.add(hidden);
+    // Convolutions
+    model.add(tf.layers.conv2d({ inputShape: [MODEL_NUMBER_OF_FEATURES, BOARD.width, BOARD.height], dataFormat: "channelsFirst", filters: 32, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.dropout({ rate: 0.15 }));
 
-    const output = tf.layers.dense({
-      units: this.outputNodes,
-      activation: 'softmax'
+    model.add(tf.layers.conv2d({ filters: 64, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.dropout({ rate: 0.15 }));
+
+    model.add(tf.layers.conv2d({ filters: 128, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.dropout({ rate: 0.15 }));
+
+    // Classification
+    model.add(tf.layers.flatten());
+    model.add(tf.layers.dense({ units: 64, activation: "relu" }));
+    model.add(tf.layers.dense({ units: 32, activation: "relu" }));
+    model.add(tf.layers.dense({ units: actionSize, activation: "softmax" }));
+
+    model.compile({
+      optimizer: "adam",
+      loss: "categoricalCrossentropy",
+      metrics: ["accuracy"]
     });
-    model.add(output);
 
     return model;
-  }
-
-  private gaussianRand() {
-    var rand = 0;
-
-    for (var i = 0; i < 6; i += 1) {
-      rand += Math.random() - 0.5;
-    }
-
-    return rand / 6;
   }
 }

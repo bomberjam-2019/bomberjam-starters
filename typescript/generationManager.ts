@@ -5,6 +5,7 @@ import { IGameState, IPlayer, startSimulation } from 'bomberjam-backend';
 import EvoBot from './bot';
 import { IGeneticBot } from './IGeneticBot';
 import { NeuralNetwork } from './neuralNetwork';
+import { shuffleArray } from './utils';
 
 type botDictionnary = { [index: string]: IGeneticBot };
 
@@ -26,7 +27,7 @@ export default class GenerationManager {
     this.currentGeneration = 1;
     this.model = model;
     this.bots = this.createBots();
-    this.saveLogs = true;
+    this.saveLogs = false;
   }
 
   private generateBotName(index: number): string {
@@ -44,22 +45,12 @@ export default class GenerationManager {
     return bots;
   }
 
-  private CloneModel(model: tf.Sequential) {}
-
-  // https://stackoverflow.com/a/12646864/5115252
-  private shuffleArray(array: any[]) {
-    for (var i = array.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-  }
+  private CloneModel(model: tf.Sequential) { }
 
   async runGeneration() {
     let games: Promise<IGameState>[] = [];
     let botsId = Object.keys(this.bots);
-    this.shuffleArray(botsId);
+    shuffleArray(botsId);
     for (var _i = 0; _i < this.numberOfGames; _i++) {
       games.push(this.simulateGameAsync([
         this.bots[botsId.pop() as string],
@@ -76,7 +67,7 @@ export default class GenerationManager {
   async simulateGameAsync(bots: IGeneticBot[], saveGamelog: boolean): Promise<IGameState> {
     return new Promise<IGameState>(resolve => {
       const simulation = startSimulation(bots, saveGamelog);
-      while (!simulation.isFinished) {
+      while (simulation.currentState.tick < 200) {
         simulation.executeNextTick();
       }
 
@@ -141,11 +132,11 @@ export default class GenerationManager {
 
     this.bestBotScoreSum += allBots[sortedIds[0]].score;
     let bestBotAverage = Math.round(this.bestBotScoreSum / (this.currentGeneration - 1));
-    let bestBotScoreDiff = (((allBots[sortedIds[0]].score - bestBotAverage) / ((bestBotAverage + allBots[sortedIds[0]].score) / 2)) *100).toFixed(2);
+    let bestBotScoreDiff = (((allBots[sortedIds[0]].score - bestBotAverage) / ((bestBotAverage + allBots[sortedIds[0]].score) / 2)) * 100).toFixed(2);
 
     console.log(
       `${this.currentGeneration - 1} | ${totalScore} | ${gameScoreAverage} | ${gameScoreDiff}% | ${
-        allBots[sortedIds[0]].score
+      allBots[sortedIds[0]].score
       } | ${bestBotAverage} | ${bestBotScoreDiff}%`
     );
 
