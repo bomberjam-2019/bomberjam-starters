@@ -10,11 +10,11 @@ namespace Bomberjam.Bot
 {
     public class Program
     {
-        private const string modelSavePath = @"F:\tmp\savedModel";
+        private const string modelSavePath = @"C:\tmp\savedModel";
 
         public static async Task Main()
         {
-            ParseGamelogExample("/path/to/some.gamelog");
+            // ParseGamelogExample("/path/to/some.gamelog");
 
             //await SimulateExample();
 
@@ -24,7 +24,7 @@ namespace Bomberjam.Bot
             var trainer = new GenericClassificationTrainer(GenericClassificationTrainer.AlgorithmType.LightGbm);
 
             Train(trainer);
-            //await Game(trainer);
+            //await TestGame(trainer);
         }
 
         // Train, get metrics and save your Machine Learning Bot

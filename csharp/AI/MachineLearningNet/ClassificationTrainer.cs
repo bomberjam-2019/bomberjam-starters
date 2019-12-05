@@ -28,9 +28,9 @@ namespace Bomberjam.Bot
 
             var trainedModel = trainingPipeline.Fit(trainingDataView);
             Evaluate(trainedModel, testDataView);
-            
+
             var transformedTestData = trainedModel.Transform(testDataView);
-            
+
 
             PredictionEngine<BomberJamModel.PlayerState, BomberJamModel.MovePrediction> predictionEngine = this._mlContext.Model.CreatePredictionEngine<BomberJamModel.PlayerState, BomberJamModel.MovePrediction>(trainedModel);
 
@@ -60,7 +60,7 @@ namespace Bomberjam.Bot
                             nameof(BomberJamModel.PlayerState.Respawning),
                             nameof(BomberJamModel.PlayerState.BombsLeft)))
                     .AppendCacheCheckpoint(_mlContext)
-                    .Append(_mlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy(
+                    .Append(_mlContext.MulticlassClassification.Trainers.LightGbm(
                         "Label",
                         "Features"))
                     .Append(
@@ -68,7 +68,7 @@ namespace Bomberjam.Bot
                             inputColumnName: "PredictedLabel",
                             outputColumnName: "PredictedLabel"
                         ));
-            
+
 
             return pipeline;
         }
@@ -84,7 +84,7 @@ namespace Bomberjam.Bot
         public void Evaluate(ITransformer predictionEngine, IDataView testDataView)
         {
             var metrics = _mlContext.MulticlassClassification.Evaluate(predictionEngine.Transform(testDataView));
-            
+
             Console.WriteLine($"Micro Accuracy: {metrics.MicroAccuracy:F2}");
             Console.WriteLine($"Macro Accuracy: {metrics.MacroAccuracy:F2}");
             Console.WriteLine($"Log Loss: {metrics.LogLoss:F2}");
@@ -93,22 +93,22 @@ namespace Bomberjam.Bot
 
             Console.WriteLine(metrics.ConfusionMatrix.GetFormattedConfusionTable());
         }
-        
+
 
         public void CustomEvaluate(Func<BomberJamModel.PlayerState, BomberJamModel.MovePrediction> predictor, IEnumerable<BomberJamModel.PlayerState> states)
         {
             var success = 0;
             var failure = 0;
-            
-                            
+
+
 
             foreach (var state in states)
             {
                 var expectedResult = state.Label;
                 state.Label = "";
                 var result = predictor(state);
-                
-                
+
+
                 if (result.PredictedLabel  == expectedResult)
                 {
                     ++success;
@@ -118,7 +118,7 @@ namespace Bomberjam.Bot
                     ++failure;
                 }
             }
-            
+
             Console.WriteLine($"Success: {success}");
             Console.WriteLine($"Failure: {failure}");
         }

@@ -9,14 +9,6 @@ namespace Bomberjam.Bot.AI
 {
     public class BomberJamModel
     {
-//        public class BomberJamDataPoint : DataPoint
-//        {
-//            public string Label { get; set; }
-//            
-//            [VectorType(11)] 
-//            public float[] Features { get; set; }
-//        }
-
         public static DataPoint GenerateDataPoint(GameStateStep step, string playerId)
         {
             return new DataPoint
@@ -25,7 +17,7 @@ namespace Bomberjam.Bot.AI
                 Features = GetStateFeatures2(step.State, playerId)
             };
         }
-        
+
         public static float[] GetStateFeatures(GameState state, string playerId)
         {
             var player = state.Players[playerId];
@@ -58,7 +50,7 @@ namespace Bomberjam.Bot.AI
                 currentTile,
             };
         }
-        
+
         public static float[] GetStateFeatures2(GameState state, string playerId)
         {
             var player = state.Players[playerId];
@@ -142,22 +134,22 @@ namespace Bomberjam.Bot.AI
             {
                 return (uint) Tile.Bomb;
             }
-            
+
             if (state.Players.Any(b => b.Value.Id != self && b.Value.X == x && b.Value.Y == y))
             {
                 return (uint) Tile.Ennemy;
             }
-            
+
             if (state.Bonuses.Any(b => b.Value.X == x && b.Value.Y == y))
             {
                 return (uint) Tile.Bonus;
             }
-            
+
             var position = x + y * state.Width;
             var ch = state.Tiles[position];
             return (uint) TileConverter[ch];
         }
-        
+
         public class PlayerState
         {
             [ColumnName("TopLeftTile")]
@@ -199,11 +191,11 @@ namespace Bomberjam.Bot.AI
         public class MovePrediction
         {
             [ColumnName("PredictedLabel")] public string PredictedLabel  { get; set; }
-            
+
 //            public string PredictedMove { get; set; }
-            
+
             [ColumnName("Score")] public float[] Scores { get; set; }
         }
-        
+
     }
 }
