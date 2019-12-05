@@ -10,7 +10,7 @@ const { ALL_ACTIONS, ACTION_SIZE } = require("./game-constants");
 
 const DATA_DIRECTORY = "./data";
 
-async function get(startIndex, gamesToLoad, tickFormatter, playerIds = ["p1", "p2", "p3", "p4"]) {
+async function get(startIndex, gamesToLoad, tickFormatter) {
     console.group("\nParsing data");
     const inputs = [];
     const outputs = [];
@@ -21,7 +21,7 @@ async function get(startIndex, gamesToLoad, tickFormatter, playerIds = ["p1", "p
     const selectedFiles = fileNames.splice(startIndex, gamesToLoad);
     for (const fileName of selectedFiles) {
         const filePath = path.resolve(DATA_DIRECTORY, fileName);
-        const gameData = await parseGameData(filePath, playerIds, tickFormatter);
+        const gameData = await parseGameData(filePath, tickFormatter);
         for (let i = 0; i < gameData.inputs.length; i++) {
             parsedGameData.push({
                 input: gameData.inputs[i],
@@ -60,13 +60,13 @@ async function get(startIndex, gamesToLoad, tickFormatter, playerIds = ["p1", "p
     };
 }
 
-async function parseGameData(filePath, playerIds, tickFormatter) {
+async function parseGameData(filePath, tickFormatter) {
     const inputs = [];
     const outputs = [];
     const fileStream = fs.createReadStream(filePath);
     const game = readline.createInterface({ input: fileStream, crlfDelay: Infinity });
     for await (const tick of game) {
-        const formattedTick = formatTick(JSON.parse(tick), playerIds, tickFormatter);
+        const formattedTick = formatTick(JSON.parse(tick), tickFormatter);
         inputs.push(...formattedTick.inputs);
         outputs.push(...formattedTick.outputs);
     }
@@ -77,14 +77,10 @@ async function parseGameData(filePath, playerIds, tickFormatter) {
     };
 }
 
-function formatTick({ state, actions }, playerIds, tickFormatter) {
+function formatTick({ state, actions }, tickFormatter) {
     const inputs = [];
     const outputs = [];
     for (const playerId in state.players) {
-        if (!playerIds.includes(playerId)) {
-            continue;
-        }
-
         const actionTaken = ALL_ACTIONS[actions[playerId]];
         if (actionTaken === undefined) {
             // There's no action at the end of a game

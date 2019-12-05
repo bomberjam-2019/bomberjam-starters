@@ -55,7 +55,12 @@ function answerStruct() {
 }
 
 function crunchAnswersData(answers) {
-    const totals = { expected: 0, predicted: 0, good: 0 };
+    const totals = {
+        expected: 0,
+        predicted: 0,
+        good: 0
+    };
+
     for (const action in answers) {
         totals.expected += answers[action].expected;
         totals.predicted += answers[action].predicted;
@@ -68,6 +73,6 @@ function crunchAnswersData(answers) {
     for (const action in answers) {
         answers[action]["expected %"] = Math.round(answers[action].expected / totalActions * 100);
         answers[action]["predicted %"] = Math.round(answers[action].predicted / totalActions * 100);
-        answers[action]["accuracy"] = Math.round(answers[action].good / answers[action].expected * 100);
+        answers[action]["accuracy %"] = Math.round(answers[action].good / answers[action].expected * 100);
     }
 }

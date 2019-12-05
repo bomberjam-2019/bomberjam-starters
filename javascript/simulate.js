@@ -3,19 +3,20 @@ const { bot } = require("./bots");
 
 // You can pass an argument for the number of games to play.
 // Defaults to 10.
-simulateGame(process.argv[2] || 10);
+const NUMBER_OF_GAMES = process.argv[2] || 10;
 
-async function simulateGame(numberOfGames) {
+simulateGame();
+async function simulateGame() {
     console.log("Creating bots");
     const bots = await createBots();
 
-    console.log("Playing", numberOfGames, "games");
+    console.log("Playing", NUMBER_OF_GAMES, "games");
     const scores = {};
     const averageScores = {};
     const saveGamelog = true;
-    for (let game = 1; game <= numberOfGames; game++) {
+    for (let game = 1; game <= NUMBER_OF_GAMES; game++) {
         const finalState = play(bots, saveGamelog);
-        crunchScoreStats(finalState, scores, averageScores, game, numberOfGames);
+        crunchScoreStats(finalState, scores, averageScores, game);
         console.log("Game", game);
     }
 
@@ -50,16 +51,31 @@ function play(bots, saveGamelog) {
     return simulation.currentState;
 }
 
-function crunchScoreStats(finalState, scores, averageScores, currentGame, gamesToPlay) {
+function crunchScoreStats(finalState, scores, averageScores, currentGame) {
     const players = finalState.players;
     const score = {};
+    let totalScore = 0;
+    let lastAlive = "none";
     for (const playerId in players) {
+        totalScore += players[playerId].score;
         score[playerId] = players[playerId].score;
+
+        if (players[playerId].hasWon) {
+            lastAlive = playerId;
+        }
+
         if (!averageScores[playerId]) {
             averageScores[playerId] = 0;
         }
-
-        averageScores[playerId] += score[playerId] / gamesToPlay;
+        averageScores[playerId] += Math.round(score[playerId] / NUMBER_OF_GAMES);
     }
+
+    score.average = Math.round(totalScore / Object.keys(players).length);
+    score["last alive"] = lastAlive;
     scores[`Game ${currentGame}`] = score;
+
+    if (!averageScores.average) {
+        averageScores.average = 0;
+    }
+    averageScores.average += Math.round(score.average / NUMBER_OF_GAMES);
 }
