@@ -5,12 +5,14 @@ const data = require("./src/data");
 const { bot } = require("./bots");
 const { ACTION_STRINGS } = require("./src/game-constants");
 
-// You can pass an argument for the number of games to load for the test.
-// Defaults to 25
+/*
+*   You can pass an argument for the number of games to load for the test.
+*   Defaults to 25
+*/
 const GAMES_TO_LOAD = process.argv[2] || 25;
 
-main();
-async function main() {
+test();
+async function test() {
     const classifier = await tf.loadLayersModel(`file://./trained-models/${bot.modelName}/model.json`);
 
     console.group("\nEvaluating model", bot.modelName);

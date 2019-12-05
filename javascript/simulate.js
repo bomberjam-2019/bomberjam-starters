@@ -1,12 +1,14 @@
 const { startSimulation } = require('bomberjam-backend');
 const { bot } = require("./bots");
 
-// You can pass an argument for the number of games to play.
-// Defaults to 10.
+/*
+*   You can pass an argument for the number of games to play.
+*   Defaults to 10.
+*/
 const NUMBER_OF_GAMES = process.argv[2] || 10;
 
-simulateGame();
-async function simulateGame() {
+simulate();
+async function simulate() {
     console.log("Creating bots");
     const bots = await createBots();
 

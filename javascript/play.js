@@ -2,7 +2,6 @@ const { playInBrowser } = require('bomberjam-backend');
 const { bot } = require("./bots");
 
 play();
-
 async function play() {
     const bots = await createBots();
     playInBrowser(bots).catch(console.log);

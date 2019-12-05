@@ -1,9 +1,17 @@
 const { TILE_NAMES, TILE_MAPPING, BOMB_MAX_COUNTDOWN, BONUSES, BOARD } = require("../../src/game-constants");
 const { createMap } = require("../../src/utils");
 
+/*
+*   Do not forget to update this to match the dimensions that "gameStateToModelInputConverter" returns.
+*   It will be used to compile you model.
+*/
 const NUMBER_OF_FEATURES = 10;
 const DATA_SHAPE = [NUMBER_OF_FEATURES, BOARD.width, BOARD.height]
 
+/*
+*   Transform a game state into an input for your neural network given the playerId.
+*   Do not create tensors here, simply return arrays.
+*/
 function gameStateToModelInputConverter(state, playerId) {
     const currentPlayer = state.players[playerId];
     const otherPlayers = Object.values(state.players).filter(player => player.id !== playerId);

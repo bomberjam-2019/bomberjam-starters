@@ -10,6 +10,11 @@ const { ALL_ACTIONS, ACTION_SIZE } = require("./game-constants");
 
 const DATA_DIRECTORY = "./data";
 
+/*
+*   Gets game data from files.
+*   It will load "gamesToLoad" files starting at the "startIndex"th file.
+*   The provided "tickFormatter" will be used to convert the game data into your neural network input.
+*/
 async function get(startIndex, gamesToLoad, tickFormatter) {
     console.group("\nParsing data");
     const inputs = [];
@@ -60,6 +65,10 @@ async function get(startIndex, gamesToLoad, tickFormatter) {
     };
 }
 
+/*
+*   Reads a game file line by line. We do this because the whole file is not a valid JSON.
+*   It then proceeds to format each game tick.
+*/
 async function parseGameData(filePath, tickFormatter) {
     const inputs = [];
     const outputs = [];
@@ -77,6 +86,12 @@ async function parseGameData(filePath, tickFormatter) {
     };
 }
 
+/*
+*   Format a game tick.
+*   It will create a set of input/output for each player in the game.
+*   The input will be formatted using the provided tickFormatter.
+*   The output is a one hot vector of the action taken.
+*/
 function formatTick({ state, actions }, tickFormatter) {
     const inputs = [];
     const outputs = [];

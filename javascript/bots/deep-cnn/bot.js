@@ -11,10 +11,18 @@ class DeepCNNBot {
         this.modelName = modelName;
     }
 
+    /*
+    *   Load your model from the disk based on the modelName.
+    *   You don't need to change this unless you want to save / load to another folder.
+    */
     async init() {
         this.model = await tf.loadLayersModel(`file://./trained-models/${this.modelName}/model.json`);
     }
 
+    /*
+    *   Given a state and a player id, use your model to predict what the next action should be.
+    *   The code given below is pretty standard and should meet your needs.
+    */
     getAction(state, myPlayerId) {
         const input = tf.tensor4d([gameStateToModelInputConverter(state, myPlayerId)]);
         const predictionTensor = this.model.predict(input);
