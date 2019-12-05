@@ -1,5 +1,6 @@
 # Bomberjam Javascript Starter
 In here you will find useful scripts to train and test your bot  
+
 Use these commands:  
 ``node train.js`` to start training your model.  
 ``node test.js`` to have details on how your model behaves.  
