@@ -21,6 +21,7 @@ const ALL_ACTIONS = {
     "bomb": 5
 };
 
+const ACTION_STRINGS = Object.keys(ALL_ACTIONS);
 const ACTION_SIZE = Object.values(ALL_ACTIONS).length;
 
 const BOARD = {
@@ -39,6 +40,7 @@ module.exports = {
     TILE_NAMES,
     TILE_MAPPING,
     ALL_ACTIONS,
+    ACTION_STRINGS,
     ACTION_SIZE,
     BOARD,
     BOMB_MAX_COUNTDOWN,

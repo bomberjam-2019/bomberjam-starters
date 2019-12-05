@@ -3,11 +3,13 @@ require("@tensorflow/tfjs-node");
 
 const data = require("./src/data");
 const { bot } = require("./bots");
-const { ALL_ACTIONS } = require("./src/game-constants");
-const actionStrings = Object.keys(ALL_ACTIONS);
+const { ACTION_STRINGS } = require("./src/game-constants");
 
-const GAMES_TO_LOAD = 25;
+// You can pass an argument for the number of games to load for the test.
+// Defaults to 25
+const GAMES_TO_LOAD = process.argv[2] || 25;
 
+main();
 async function main() {
     const classifier = await tf.loadLayersModel(`file://./trained-models/${bot.modelName}/model.json`);
 
@@ -25,8 +27,8 @@ async function main() {
     const answers = answerStruct();
 
     for (let i = 0; i < expected.length; i++) {
-        const expectedAction = actionStrings[expected[i]];
-        const predictedAction = actionStrings[predicted[i]];
+        const expectedAction = ACTION_STRINGS[expected[i]];
+        const predictedAction = ACTION_STRINGS[predicted[i]];
         answers[expectedAction].expected++;
         answers[predictedAction].predicted++;
         if (expected[i] === predicted[i]) {
@@ -41,7 +43,7 @@ async function main() {
 }
 
 function answerStruct() {
-    return actionStrings.reduce((acc, action) => {
+    return ACTION_STRINGS.reduce((acc, action) => {
         acc[action] = {
             expected: 0,
             predicted: 0,
@@ -69,5 +71,3 @@ function crunchAnswersData(answers) {
         answers[action]["accuracy"] = Math.round(answers[action].good / answers[action].expected * 100);
     }
 }
-
-main();

@@ -3,7 +3,7 @@ require("@tensorflow/tfjs-node");
 
 const { modelName } = require("./model");
 const { gameStateToModelInputConverter } = require("./data");
-const { ALL_ACTIONS } = require("../../src/game-constants");
+const { ACTION_STRINGS } = require("../../src/game-constants");
 
 class DeepCNNBot {
     constructor(modelName) {
@@ -16,7 +16,6 @@ class DeepCNNBot {
     }
 
     getAction(state, myPlayerId) {
-        const actionStrings = Object.keys(ALL_ACTIONS);
         const input = tf.tensor4d([gameStateToModelInputConverter(state, myPlayerId)]);
         const predictionTensor = this.model.predict(input);
 
@@ -24,7 +23,7 @@ class DeepCNNBot {
         input.dispose();
         predictionTensor.dispose();
 
-        const action = actionStrings[prediction];
+        const action = ACTION_STRINGS[prediction];
 
         return action;
     }
