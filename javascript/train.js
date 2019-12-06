@@ -28,7 +28,7 @@ async function train() {
         console.group("\nFitting model |", tf.memory().numTensors, "tensors");
         const fitResult = await model.fit(train.inputs, train.outputs, {
             batchSize: 64,
-            epochs: 10,
+            epochs: 6,
             shuffle: true,
             validationSplit: 0.15
         });
@@ -41,6 +41,9 @@ async function train() {
 
         console.log("Saving model", bot.modelName);
         model.save(`file://./trained-models/${bot.modelName}`);
+        if (start % 250 == 0) {
+            model.save(`file://./trained-models/${bot.modelName}-${start}`);
+        }
         console.groupEnd();
 
         start += GAMES_TO_LOAD;

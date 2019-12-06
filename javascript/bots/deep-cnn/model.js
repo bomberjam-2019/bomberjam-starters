@@ -7,7 +7,7 @@ const { DATA_SHAPE } = require("./data");
 /*
 *   Your model name. Saves and loads will use this.
 */
-const modelName = "cnn-3x3-2d-all-1000";
+const modelName = "cnn-4x3-2d-all";
 
 /*
 *   Define and compile your neural network.
@@ -25,11 +25,14 @@ function buildModel() {
     
     model.add(tf.layers.conv2d({ filters: 128, kernelSize: 3, activation: "relu" }));
     model.add(tf.layers.dropout({ rate : 0.15 }));
+    
+    model.add(tf.layers.conv2d({ filters: 256, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.dropout({ rate : 0.15 }));
 
     // Classification
     model.add(tf.layers.flatten());
-    model.add(tf.layers.dense({ units: 64, activation: "relu" }));
     model.add(tf.layers.dense({ units: 32, activation: "relu" }));
+    model.add(tf.layers.dense({ units: 16, activation: "relu" }));
     model.add(tf.layers.dense({ units: ACTION_SIZE, activation: "softmax" }));
 
     /*

@@ -16,7 +16,7 @@ async function test() {
     const classifier = await tf.loadLayersModel(`file://./trained-models/${bot.modelName}/model.json`);
 
     console.group("\nEvaluating model", bot.modelName);
-    const test = await data.get(0, GAMES_TO_LOAD, bot.gameStateToModelInputConverter);
+    const test = await data.get(3000 - GAMES_TO_LOAD, GAMES_TO_LOAD, bot.gameStateToModelInputConverter);
 
     console.log("Making predictions");
     const predictionsTensor = classifier.predict(test.inputs);
