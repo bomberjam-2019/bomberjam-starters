@@ -1,7 +1,14 @@
 # Bomberjam Javascript Starter  
 Welcome to the Bomberjam Javascript Starter! In here you will find useful information about how to get started with training your bot, debugging its performance and seeing it play!  
 
+## Requirements
+You need Node.js and npm, nothing else!  
+If you hace chocolatey, run ``choco install nodejs.install`` or you can [install it yourself](https://nodejs.org/en/download/).  
+npm is always bundled with Node.js.  
+
+## Before You Start
 Before you start, download the dataset we will provide you and extract it in ``data/``. It might take some time.  
+Also, run ``npm install`` and then ``npm run check-install``
 
 ## Project Structure  
 At the root level, you will find the following files and folders:  

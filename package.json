@@ -4,7 +4,8 @@
   "license": "ISC",
   "private": true,
   "scripts": {
-    "server": "node node_modules/bomberjam-backend/server.js"
+    "server": "node node_modules/bomberjam-backend/server.js",
+    "check-install": "cp node_modules/@tensorflow/tfjs-node/deps/lib/tensorflow.dll node_modules/@tensorflow/tfjs-node/lib/napi-v4/tensorflow.dll"
   },
   "dependencies": {
     "@tensorflow/tfjs-node": "1.3.2",

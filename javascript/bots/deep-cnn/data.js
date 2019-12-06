@@ -3,13 +3,13 @@ const { createMap } = require("../../src/utils");
 
 /*
 *   Do not forget to update this to match the dimensions that "gameStateToModelInputConverter" returns.
-*   It will be used to compile you model.
+*   It will be used to compile your model.
 */
 const NUMBER_OF_FEATURES = 10;
 const DATA_SHAPE = [NUMBER_OF_FEATURES, BOARD.width, BOARD.height]
 
 /*
-*   Transform a game state into an input for your neural network given the playerId.
+*   Transforms a gameState into an input for your neural network given the playerId.
 *   Do not create tensors here, simply return arrays.
 */
 function gameStateToModelInputConverter(state, playerId) {
