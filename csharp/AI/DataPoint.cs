@@ -7,7 +7,7 @@ namespace Bomberjam.Bot
         public string Label { get; set; }
 
         // Size = number of features
-        [VectorType(11)] 
+        [VectorType(2)]
         public float[] Features { get; set; }
     }
 }

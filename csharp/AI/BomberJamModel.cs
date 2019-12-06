@@ -69,17 +69,17 @@ namespace Bomberjam.Bot.AI
 
             return new float[]
             {
-                player.Alive ? 1 : 0,
-                player.Respawning,
+                // player.Alive ? 1 : 0,
+                // player.Respawning,
                 player.BombsLeft,
-                twoLeftTile,
-                topCenterTile,
-                twoRightTile,
-                leftTile,
-                rightTile,
-                twoBottomCenterTile,
+                // twoLeftTile,
+                // topCenterTile,
+                // twoRightTile,
+                // leftTile,
+                // rightTile,
+                // twoBottomCenterTile,
                 bottomCenterTile,
-                currentTile
+                // currentTile
             };
         }
 

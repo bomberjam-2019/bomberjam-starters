@@ -46,10 +46,51 @@ namespace Bomberjam.Bot.AI
 
         private IEnumerable<T> GenerateModel(Gamelog gamelog)
         {
-            foreach (GameStateStep step in gamelog)
-            foreach (var player in step.Actions.Keys)
-                yield return this.GenerateData(step, player);
-        }
+            var allActions = gamelog.SelectMany(x =>
+            {
+                return x.Actions.Values;
+            }).Where(x => x.HasValue);
 
+            var minimalAction = allActions.GroupBy(x =>
+            {
+                return x;
+            }).Select(a =>
+            {
+                return a.Count();
+            }).Min();
+
+            var shuffledGameLog = gamelog.OrderBy(a => Guid.NewGuid()).ToList();
+            var normalizeHelper = new Dictionary<GameAction, int>();
+
+
+            foreach (GameStateStep step in shuffledGameLog)
+            foreach (var player in step.Actions.Keys)
+            {
+                if (!step.Actions[player].HasValue)
+                {
+                    continue;
+                }
+
+                if (normalizeHelper.TryGetValue(step.Actions[player].Value, out var count))
+                {
+                    if (count >= minimalAction)
+                    {
+                        continue;
+                    }
+
+                    normalizeHelper[step.Actions[player].Value] = ++count;
+                }
+                else
+                {
+                    normalizeHelper.Add(step.Actions[player].Value, 1);
+                }
+
+                if ((step.Actions[player].Value == GameAction.Bomb || step.Actions[player].Value == GameAction.Down))
+                {
+                    yield return this.GenerateData(step, player);
+                }
+
+            }
+        }
     }
 }
