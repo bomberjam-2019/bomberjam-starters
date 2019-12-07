@@ -16,7 +16,7 @@ const DATA_DIRECTORY = "./data";
 *   The provided "tickFormatter" will be used to convert the game data into your neural network input.
 */
 async function get(startIndex, gamesToLoad, tickFormatter) {
-    console.group("\nParsing data");
+    console.group("Parsing data");
     const inputs = [];
     const outputs = [];
     const fileNames = fs.readdirSync(DATA_DIRECTORY);

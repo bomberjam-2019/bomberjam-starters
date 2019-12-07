@@ -7,11 +7,12 @@ const { DATA_SHAPE } = require("./data");
 /*
 *   Your model name. Saves and loads will use this.
 */
-const modelName = "cnn-4x3-2d-all";
+const modelName = "cnn-3c32-3c48-3c72-3c108-3c162-64d-32d";
 
 /*
 *   Define and compile your neural network.
-*   The neural net provided below works... relatively well, but you'll need to improve it.
+*   The neural net provided below works, but you can improve it.
+*   After you've done your gameStateToModelInputConverter, play with the network structure.
 */
 function buildModel() {
     const model = tf.sequential();
@@ -20,19 +21,22 @@ function buildModel() {
     model.add(tf.layers.conv2d({ inputShape: DATA_SHAPE, dataFormat: "channelsFirst", filters: 32, kernelSize: 3, activation: "relu" }));
     model.add(tf.layers.dropout({ rate : 0.15 }));
 
-    model.add(tf.layers.conv2d({ filters: 64, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.conv2d({ filters: 48, kernelSize: 3, activation: "relu" }));
     model.add(tf.layers.dropout({ rate : 0.15 }));
     
-    model.add(tf.layers.conv2d({ filters: 128, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.conv2d({ filters: 72, kernelSize: 3, activation: "relu" }));
     model.add(tf.layers.dropout({ rate : 0.15 }));
     
-    model.add(tf.layers.conv2d({ filters: 256, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.conv2d({ filters: 108, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.dropout({ rate : 0.15 }));
+    
+    model.add(tf.layers.conv2d({ filters: 162, kernelSize: 3, activation: "relu" }));
     model.add(tf.layers.dropout({ rate : 0.15 }));
 
     // Classification
     model.add(tf.layers.flatten());
+    model.add(tf.layers.dense({ units: 64, activation: "relu" }));
     model.add(tf.layers.dense({ units: 32, activation: "relu" }));
-    model.add(tf.layers.dense({ units: 16, activation: "relu" }));
     model.add(tf.layers.dense({ units: ACTION_SIZE, activation: "softmax" }));
 
     /*

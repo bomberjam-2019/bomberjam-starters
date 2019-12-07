@@ -1,9 +1,9 @@
-const { newBot } = require("./bot");
+const { NeuralNetworkBot } = require("../neuralNetworkBot")
 const { modelName, buildModel } = require("./model");
 const { gameStateToModelInputConverter } = require("./data");
 
 module.exports = {
-    newBot,
+    newBot: () => new NeuralNetworkBot(modelName, gameStateToModelInputConverter),
     modelName,
     buildModel,
     gameStateToModelInputConverter

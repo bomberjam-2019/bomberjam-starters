@@ -13,6 +13,7 @@ const DATASET_SIZE = 3000;
 
 train();
 async function train() {
+    console.log("\nStarted training for model", bot.modelName);
     const model = bot.buildModel();
     let accuracyMetricIndex = null;
 
@@ -24,11 +25,12 @@ async function train() {
     */
     let start = 0;
     while (start < DATASET_SIZE - GAMES_TO_LOAD) {
+        console.group();
         const train = await data.get(start, GAMES_TO_LOAD, bot.gameStateToModelInputConverter);
-        console.group("\nFitting model |", tf.memory().numTensors, "tensors");
+        console.log("Fitting model |", tf.memory().numTensors, "tensors");
         const fitResult = await model.fit(train.inputs, train.outputs, {
             batchSize: 64,
-            epochs: 6,
+            epochs: 3,
             shuffle: true,
             validationSplit: 0.15
         });
@@ -39,9 +41,9 @@ async function train() {
             accuracyMetricIndex = fitResult.params.metrics.indexOf("acc");
         }
 
-        console.log("Saving model", bot.modelName);
+        console.log("Saving model", bot.modelName, "\n");
         model.save(`file://./trained-models/${bot.modelName}`);
-        if (start % 250 == 0) {
+        if (start > 0 && start % 250 == 0) {
             model.save(`file://./trained-models/${bot.modelName}-${start}`);
         }
         console.groupEnd();

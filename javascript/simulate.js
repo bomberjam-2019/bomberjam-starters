@@ -9,7 +9,7 @@ const NUMBER_OF_GAMES = process.argv[2] || 10;
 
 simulate();
 async function simulate() {
-    console.log("Creating bots");
+    console.log("Creating bots with model", bot.modelName);
     const bots = await createBots();
 
     console.log("Playing", NUMBER_OF_GAMES, "games");
