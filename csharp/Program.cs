@@ -24,7 +24,7 @@ namespace Bomberjam.Bot
             var trainer = new GenericClassificationTrainer(GenericClassificationTrainer.AlgorithmType.LightGbm);
 
             //Train(trainer);
-            await TestGame(trainer);
+            //await TestGame(trainer);
         }
 
         // Train, get metrics and save your Machine Learning Bot
