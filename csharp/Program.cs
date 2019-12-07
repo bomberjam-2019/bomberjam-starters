@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bomberjam.Bot.AI;
-using Bomberjam.Bot.AI.AccordNet;
 using Bomberjam.Client;
-using Microsoft.ML;
 
 namespace Bomberjam.Bot
 {
     public class Program
     {
-        private const string modelSavePath = @"C:\tmp\savedModel";
+        private const string gameLogsPath = @"F:\tmp\8000_gamelogs";
+        private const string modelSavePath = @"F:\tmp\smartBot.zip";
 
         public static async Task Main()
         {
@@ -20,25 +19,18 @@ namespace Bomberjam.Bot
 
             //await PlayInBrowserExample();
 
-            //var trainer = new AccordClassificationTrainer(AccordClassificationTrainer.AlgorithmType.DecisionTree);
-            var trainer = new GenericClassificationTrainer(GenericClassificationTrainer.AlgorithmType.LightGbm);
+            //var smartBot = new AccordClassificationTrainer(AccordClassificationTrainer.AlgorithmType.DecisionTree);
+            var smartBot = new RawSmartBot(BaseSmartBot<RawSmartBot.RawDataPoint>.AlgorithmType.LightGbm, 20);
 
-            //Train(trainer);
-            //await TestGame(trainer);
+            TrainAndSave(smartBot);
+            //await TestGame(smartBot);
         }
 
         // Train, get metrics and save your Machine Learning Bot
-        public static void Train(ITrainer<DataPoint, string> trainer)
+        public static void TrainAndSave<T>(ISmartBot<T> smartBot) where T : LabeledDataPoint
         {
-            var loader = new ModelLoader<DataPoint>(BomberJamModel.GenerateDataPoint);
-
-            var (trainingSet, testSet) = loader.LoadData();
-
-            trainer.Train(trainingSet);
-
-            trainer.ComputeMetrics(testSet);
-
-            trainer.Save(modelSavePath);
+            smartBot.Train(gameLogsPath);
+            smartBot.Save(modelSavePath);
         }
 
         private static void ParseGamelogExample(string path)
@@ -51,23 +43,16 @@ namespace Bomberjam.Bot
             }
         }
 
-        private static async Task TestGame(ITrainer<DataPoint, string> trainer)
+        private static async Task TrainAndTestGame<T>(ISmartBot<T> smartBot) where T : LabeledDataPoint
         {
-            var loader = new ModelLoader<DataPoint>(BomberJamModel.GenerateDataPoint);
-            var (trainingSet, _) = loader.LoadData();
-
-            trainer.Train(trainingSet);
-
-            var smartBot = new SmartBot(trainer);
+            smartBot.Train(gameLogsPath);
 
             await PlayInBrowserExample(smartBot);
         }
 
-        private static async Task Game(ITrainer<DataPoint, string> trainer)
+        private static async Task Game<T>(ISmartBot<T> smartBot) where T : LabeledDataPoint
         {
-            await trainer.Load(modelSavePath);
-
-            var smartBot = new SmartBot(trainer);
+            await smartBot.Load(modelSavePath);
 
             await PlayInBrowserExample(smartBot);
         }
