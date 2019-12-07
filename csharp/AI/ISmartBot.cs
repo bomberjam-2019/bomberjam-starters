@@ -11,11 +11,13 @@ namespace Bomberjam.Bot.AI
         
         // Create model + output metrics
         void Train(string gameLogsPath);
-        
+
         Task Save(string path);
 
         Task Load(string path);
 
         GameAction Predict(T dataPoint);
+        
+        void EvaluateFeatures(string gameLogsPath);
     }
 }

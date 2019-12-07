@@ -10,21 +10,45 @@ namespace Bomberjam.Bot
     {
         private const string gameLogsPath = @"F:\tmp\8000_gamelogs";
         private const string modelSavePath = @"F:\tmp\smartBot.zip";
+        
+        enum ProgramRole {
+            TrainAndSave,
+            TrainAndTestGame,
+            EvaluateFeature,
+            PlayGame,
+        }
 
         public static async Task Main()
         {
-            // ParseGamelogExample("/path/to/some.gamelog");
-
-            //await SimulateExample();
-
-            //await PlayInBrowserExample();
-
-            //var smartBot = new AccordClassificationTrainer(AccordClassificationTrainer.AlgorithmType.DecisionTree);
-//            var smartBot = new TransformerSmartBot(MulticlassAlgorithmType.LightGbm, 20);
+            var role = ProgramRole.TrainAndSave;
+            
+            //var smartBot = new TransformerSmartBot(MulticlassAlgorithmType.LightGbm, 20);
             var smartBot = new RawSmartBot(MulticlassAlgorithmType.LightGbm, 20);
 
-            TrainAndSave(smartBot);
-            //await TestGame(smartBot);
+            switch (role)
+            {
+                case ProgramRole.TrainAndSave:
+                    TrainAndSave(smartBot);
+                    break;
+                case ProgramRole.TrainAndTestGame:
+                    TrainAndTestGame(smartBot);
+                    break;
+                case ProgramRole.EvaluateFeature:
+                    EvaluateFeatures(smartBot);
+                    break;
+                case ProgramRole.PlayGame:
+                    Game(smartBot);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+        
+        // https://docs.microsoft.com/en-us/dotnet/machine-learning/how-to-guides/explain-machine-learning-model-permutation-feature-importance-ml-net
+        // Currently only support impact LightGbm algo
+        public static void EvaluateFeatures<T>(ISmartBot<T> smartBot) where T : LabeledDataPoint
+        {
+            smartBot.EvaluateFeatures(gameLogsPath);
         }
 
         // Train, get metrics and save your Machine Learning Bot

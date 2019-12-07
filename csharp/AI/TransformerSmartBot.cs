@@ -19,7 +19,6 @@ namespace Bomberjam.Bot.AI
 
             public float LeftTile { get; set; }
             
-            
             public float TwoRightTile { get; set; }
 
             public float RightTile { get; set; }
