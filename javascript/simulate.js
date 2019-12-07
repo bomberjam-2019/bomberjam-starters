@@ -1,5 +1,5 @@
 const { startSimulation } = require('bomberjam-backend');
-const { bot } = require("./bots");
+const { bot, RandomBot } = require("./bots");
 
 /*
 *   You can pass an argument for the number of games to play.

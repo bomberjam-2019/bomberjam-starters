@@ -14,8 +14,9 @@ const DATA_DIRECTORY = "./data";
 *   Gets game data from files.
 *   It will load "gamesToLoad" files starting at the "startIndex"th file.
 *   The provided "tickFormatter" will be used to convert the game data into your neural network input.
+*   When "equalizeClasses" is true, samples an equal number of each output class.
 */
-async function get(startIndex, gamesToLoad, tickFormatter) {
+async function get(startIndex, gamesToLoad, tickFormatter, equalizeClasses = true) {
     console.group("Parsing data");
     const inputs = [];
     const outputs = [];
@@ -36,15 +37,19 @@ async function get(startIndex, gamesToLoad, tickFormatter) {
     }
 
     console.log("Ticks parsed:", parsedGameData.length);
-    console.log("Building dataset with equally represented classes");
-    const actionDistribution = new Array(ACTION_SIZE).fill(0);
-    for (const { output } of parsedGameData) {
-        actionDistribution[argmax(output)]++;
+    let minActionRepresentation = parsedGameData.length;
+    if (equalizeClasses) {
+        console.log("Building dataset with equally represented classes");
+        const actionDistribution = new Array(ACTION_SIZE).fill(0);
+        for (const { output } of parsedGameData) {
+            actionDistribution[argmax(output)]++;
+        }
+    
+        minActionRepresentation = Math.min(...actionDistribution);
+        
+        shuffle(parsedGameData);
     }
 
-    const minActionRepresentation = Math.min(...actionDistribution);
-    
-    shuffle(parsedGameData);
     const actionsSelected = new Array(ACTION_SIZE).fill(0);
     for (const { input, output } of parsedGameData) {
         const action = argmax(output);

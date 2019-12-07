@@ -8,7 +8,7 @@ const { bot } = require("./bots");
 *   You can pass an argument for the number of games to load in memory at the same time.
 *   Defaults to 50
 */
-const GAMES_TO_LOAD = process.argv[2] || 50;
+const GAMES_TO_LOAD = Number(process.argv[2] || 50);
 const DATASET_SIZE = 3000;
 
 train();

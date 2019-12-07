@@ -9,7 +9,7 @@ const { ACTION_STRINGS } = require("./src/game-constants");
 *   You can pass an argument for the number of games to load for the test.
 *   Defaults to 25
 */
-const GAMES_TO_LOAD = process.argv[2] || 25;
+const GAMES_TO_LOAD = Number(process.argv[2] || 25);
 
 test();
 async function test() {
@@ -17,7 +17,7 @@ async function test() {
 
     console.log("\nUsing model", bot.modelName);
     console.group("Testing");
-    const test = await data.get(3000 - GAMES_TO_LOAD, GAMES_TO_LOAD, bot.gameStateToModelInputConverter);
+    const test = await data.get(3000 - GAMES_TO_LOAD, GAMES_TO_LOAD, bot.gameStateToModelInputConverter, false);
 
     console.log("Making predictions");
     const predictionsTensor = classifier.predict(test.inputs);
