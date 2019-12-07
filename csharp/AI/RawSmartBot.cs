@@ -7,20 +7,22 @@ using Microsoft.ML.Data;
 namespace Bomberjam.Bot.AI
 {
     // Bot using raw features
-    public class RawSmartBot: BaseSmartBot<RawSmartBot.RawDataPoint>
+    public class RawSmartBot: BaseSmartBot<RawSmartBot.RawPlayerState>
     {
-        public class RawDataPoint: LabeledDataPoint
+        // Datapoint
+        public class RawPlayerState: LabeledDataPoint
         {
             // Size = number of features
-            [VectorType(11)]
+            [VectorType(12)]
             public float[] Features { get; set; }
         }
+        
 
-        public RawSmartBot(AlgorithmType algorithmType, int sampleSize = 100): base(algorithmType, sampleSize)
+        public RawSmartBot(MulticlassAlgorithmType algorithmType, int sampleSize = 100): base(algorithmType, sampleSize)
         {
         }
 
-        protected override RawDataPoint ExtractFeatures(GameState state, string myPlayerId)
+        protected override RawPlayerState ExtractFeatures(GameState state, string myPlayerId)
         {
             var player = state.Players[myPlayerId];
             var x = player.X;
@@ -36,7 +38,7 @@ namespace Bomberjam.Bot.AI
             var twoBottomCenterTile = GameStateUtils.GetBoardTile(state, x - 1, y + 1, myPlayerId);
             var currentTile = GameStateUtils.GetBoardTile(state, x, y, myPlayerId);
 
-            return new RawDataPoint()
+            return new RawPlayerState()
             {
 
                 Features = new float[]
@@ -45,6 +47,7 @@ namespace Bomberjam.Bot.AI
                     player.Respawning,
                     player.BombsLeft,
                     twoLeftTile,
+                    twoTopTile,
                     topCenterTile,
                     twoRightTile,
                     leftTile,

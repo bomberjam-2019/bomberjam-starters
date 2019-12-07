@@ -7,15 +7,6 @@ namespace Bomberjam.Bot.AI
 {
     public class BomberJamModel
     {
-        public static DataPoint GenerateDataPoint(GameStateStep step, string playerId)
-        {
-            return new DataPoint
-            {
-                Label = (step.Actions[playerId] ?? GameAction.Stay).ToString(),
-                Features = GetStateFeatures2(step.State, playerId)
-            };
-        }
-
         public static float[] GetStateFeatures(GameState state, string playerId)
         {
             var player = state.Players[playerId];

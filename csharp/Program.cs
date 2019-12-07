@@ -20,7 +20,8 @@ namespace Bomberjam.Bot
             //await PlayInBrowserExample();
 
             //var smartBot = new AccordClassificationTrainer(AccordClassificationTrainer.AlgorithmType.DecisionTree);
-            var smartBot = new RawSmartBot(BaseSmartBot<RawSmartBot.RawDataPoint>.AlgorithmType.LightGbm, 20);
+//            var smartBot = new TransformerSmartBot(MulticlassAlgorithmType.LightGbm, 20);
+            var smartBot = new RawSmartBot(MulticlassAlgorithmType.LightGbm, 20);
 
             TrainAndSave(smartBot);
             //await TestGame(smartBot);
