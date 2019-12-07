@@ -15,7 +15,8 @@ test();
 async function test() {
     const classifier = await tf.loadLayersModel(`file://./trained-models/${bot.modelName}/model.json`);
 
-    console.group("\nEvaluating model", bot.modelName);
+    console.log("\nUsing model", bot.modelName);
+    console.group("Testing");
     const test = await data.get(3000 - GAMES_TO_LOAD, GAMES_TO_LOAD, bot.gameStateToModelInputConverter);
 
     console.log("Making predictions");
@@ -24,6 +25,7 @@ async function test() {
     console.log("Extracting results");
     const expected = test.outputs.argMax(1).dataSync();
     const predicted = predictionsTensor.argMax(1).dataSync();
+    console.groupEnd();
 
     console.log("Results:");
     const answers = answerStruct();
@@ -41,7 +43,6 @@ async function test() {
     crunchAnswersData(answers);
 
     console.table(answers);
-    console.groupEnd();
 }
 
 function answerStruct() {

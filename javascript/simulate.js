@@ -9,10 +9,10 @@ const NUMBER_OF_GAMES = process.argv[2] || 10;
 
 simulate();
 async function simulate() {
-    console.log("Creating bots with model", bot.modelName);
+    console.log("\nUsing model", bot.modelName);
     const bots = await createBots();
 
-    console.log("Playing", NUMBER_OF_GAMES, "games");
+    console.group("Simulating", NUMBER_OF_GAMES, "games");
     const stats = { scores: {}, deaths: {} };
     const averages = { scores: {}, deaths: {} };
     const saveGamelog = true;
@@ -22,6 +22,7 @@ async function simulate() {
         crunchDeathStats(game, stats.deaths, averages.deaths, finalState.players, deaths);
         console.log("Game", game);
     }
+    console.groupEnd();
 
     stats.scores[" "] = { [" "]: "" }; // Make an empty row
     stats.scores["Average"] = averages.scores;

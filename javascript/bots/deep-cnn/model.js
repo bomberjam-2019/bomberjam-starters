@@ -7,7 +7,7 @@ const { DATA_SHAPE } = require("./data");
 /*
 *   Your model name. Saves and loads will use this.
 */
-const modelName = "cnn-3c32-3c48-3c72-3c108-3c162-64d-32d";
+const modelName = "cnn-3c32-3c64-3c128-3c192-3c288-64d-64d-channels-first-best";
 
 /*
 *   Define and compile your neural network.
@@ -19,24 +19,24 @@ function buildModel() {
 
     // Convolutions
     model.add(tf.layers.conv2d({ inputShape: DATA_SHAPE, dataFormat: "channelsFirst", filters: 32, kernelSize: 3, activation: "relu" }));
-    model.add(tf.layers.dropout({ rate : 0.15 }));
+    model.add(tf.layers.dropout({ rate : 0.20 }));
 
-    model.add(tf.layers.conv2d({ filters: 48, kernelSize: 3, activation: "relu" }));
-    model.add(tf.layers.dropout({ rate : 0.15 }));
+    model.add(tf.layers.conv2d({ dataFormat: "channelsFirst", filters: 64, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.dropout({ rate : 0.20 }));
     
-    model.add(tf.layers.conv2d({ filters: 72, kernelSize: 3, activation: "relu" }));
-    model.add(tf.layers.dropout({ rate : 0.15 }));
+    model.add(tf.layers.conv2d({ dataFormat: "channelsFirst", filters: 128, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.dropout({ rate : 0.20 }));
     
-    model.add(tf.layers.conv2d({ filters: 108, kernelSize: 3, activation: "relu" }));
-    model.add(tf.layers.dropout({ rate : 0.15 }));
+    model.add(tf.layers.conv2d({ dataFormat: "channelsFirst", filters: 192, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.dropout({ rate : 0.20 }));
     
-    model.add(tf.layers.conv2d({ filters: 162, kernelSize: 3, activation: "relu" }));
-    model.add(tf.layers.dropout({ rate : 0.15 }));
+    model.add(tf.layers.conv2d({ dataFormat: "channelsFirst", filters: 288, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.dropout({ rate : 0.20 }));
 
     // Classification
     model.add(tf.layers.flatten());
+    model.add(tf.layers.dense({ units: 128, activation: "relu" }));
     model.add(tf.layers.dense({ units: 64, activation: "relu" }));
-    model.add(tf.layers.dense({ units: 32, activation: "relu" }));
     model.add(tf.layers.dense({ units: ACTION_SIZE, activation: "softmax" }));
 
     /*
