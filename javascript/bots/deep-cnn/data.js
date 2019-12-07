@@ -1,12 +1,12 @@
 const { TILE_NAMES, TILE_MAPPING, BOMB_MAX_COUNTDOWN, BONUSES, BOARD } = require("../../src/game-constants");
-const { createMap } = require("../../src/utils");
+const { createMap, padMatrix } = require("../../src/utils");
 
 /*
 *   Do not forget to update this to match the dimensions that "gameStateToModelInputConverter" returns.
 *   It will be used to compile your model.
 */
-const NUMBER_OF_FEATURES = 10;
-const DATA_SHAPE = [NUMBER_OF_FEATURES, BOARD.width, BOARD.height]
+const NUMBER_OF_FEATURES = 11;
+const DATA_SHAPE = [NUMBER_OF_FEATURES, BOARD.width + 2, BOARD.height + 2]
 
 /*
 *   Transforms a gameState into an input for your neural network given the playerId.
@@ -41,12 +41,12 @@ function gameStateToModelInputConverter(state, playerId) {
 
     const bombPositionsMap = createMap(state.width, state.height);
     const bombRangesMap = createMap(state.width, state.height);
-    const bombCountdownsMap = createMap(state.width, state.height, 1);
+    const bombCountdownsMap = createMap(state.width, state.height);
     for (const bomb of Object.values(state.bombs)) {
         blockedTilesMap[bomb.x][bomb.y] = 1;
         bombPositionsMap[bomb.x][bomb.y] = 1;
         bombRangesMap[bomb.x][bomb.y] = bomb.range / Math.max(state.width, state.height);
-        bombCountdownsMap[bomb.x][bomb.y] = bomb.countdown / BOMB_MAX_COUNTDOWN + 1;
+        bombCountdownsMap[bomb.x][bomb.y] = (BOMB_MAX_COUNTDOWN - bomb.countdown) / BOMB_MAX_COUNTDOWN;
     }
 
     const bonusesMap = createMap(state.width, state.height);
@@ -56,18 +56,20 @@ function gameStateToModelInputConverter(state, playerId) {
 
     const currentPlayerBombsLeftMap = createMap(state.width, state.height, currentPlayer.bombsLeft / currentPlayer.maxBombs);
     const currentPlayerBombRangeMap = createMap(state.width, state.height, currentPlayer.bombRange / Math.max(state.width, state.height));
+    const suddenDeathMap = createMap(state.width, state.height, state.suddenDeathCountdown === 0 ? 1 : 0);
 
     return [
-        currentPlayerPositionMap,
-        otherPlayersPositionMap,
-        breakableTilesMap,
-        blockedTilesMap,
-        bombPositionsMap,
-        bombRangesMap,
-        bombCountdownsMap,
-        bonusesMap,
-        currentPlayerBombsLeftMap,
-        currentPlayerBombRangeMap
+        padMatrix(currentPlayerPositionMap, 1, 0),
+        padMatrix(otherPlayersPositionMap, 1, 0),
+        padMatrix(breakableTilesMap, 1, 0),
+        padMatrix(blockedTilesMap, 1, 1),
+        padMatrix(bombPositionsMap, 1, 0),
+        padMatrix(bombRangesMap, 1, 0),
+        padMatrix(bombCountdownsMap, 1, 0),
+        padMatrix(bonusesMap, 1, 0),
+        padMatrix(currentPlayerBombsLeftMap, 1, suddenDeathMap[0][0]),
+        padMatrix(currentPlayerBombRangeMap, 1, suddenDeathMap[0][0]),
+        padMatrix(suddenDeathMap, 1, suddenDeathMap[0][0])
     ];
 }
 

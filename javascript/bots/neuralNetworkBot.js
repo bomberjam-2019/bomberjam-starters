@@ -19,7 +19,7 @@ class NeuralNetworkBot {
     *   You don't need to change this unless you want to save / load to another folder.
     */
     async init() {
-        this.model = await tf.loadLayersModel(`file://./trained-models/${this.modelName}/model.json`);
+        this.model = await tf.loadLayersModel(`file://./saved-models/${this.modelName}/model.json`);
     }
 
     /*

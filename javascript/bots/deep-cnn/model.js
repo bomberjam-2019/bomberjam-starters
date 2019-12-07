@@ -7,7 +7,7 @@ const { DATA_SHAPE } = require("./data");
 /*
 *   Your model name. Saves and loads will use this.
 */
-const modelName = "cnn-3c32-3c64-3c128-3c192-3c288-64d-64d-channels-first-best";
+const modelName = "cnn-5c32-3c64-3c128-3c256-128d-64d-pad1";
 
 /*
 *   Define and compile your neural network.
@@ -18,20 +18,17 @@ function buildModel() {
     const model = tf.sequential();
 
     // Convolutions
-    model.add(tf.layers.conv2d({ inputShape: DATA_SHAPE, dataFormat: "channelsFirst", filters: 32, kernelSize: 3, activation: "relu" }));
-    model.add(tf.layers.dropout({ rate : 0.20 }));
+    model.add(tf.layers.conv2d({ inputShape: DATA_SHAPE, dataFormat: "channelsFirst", filters: 32, kernelSize: 5, activation: "relu" }));
+    model.add(tf.layers.dropout({ rate : 0.15 }));
 
     model.add(tf.layers.conv2d({ dataFormat: "channelsFirst", filters: 64, kernelSize: 3, activation: "relu" }));
-    model.add(tf.layers.dropout({ rate : 0.20 }));
+    model.add(tf.layers.dropout({ rate : 0.15 }));
     
     model.add(tf.layers.conv2d({ dataFormat: "channelsFirst", filters: 128, kernelSize: 3, activation: "relu" }));
-    model.add(tf.layers.dropout({ rate : 0.20 }));
+    model.add(tf.layers.dropout({ rate : 0.15 }));
     
-    model.add(tf.layers.conv2d({ dataFormat: "channelsFirst", filters: 192, kernelSize: 3, activation: "relu" }));
-    model.add(tf.layers.dropout({ rate : 0.20 }));
-    
-    model.add(tf.layers.conv2d({ dataFormat: "channelsFirst", filters: 288, kernelSize: 3, activation: "relu" }));
-    model.add(tf.layers.dropout({ rate : 0.20 }));
+    model.add(tf.layers.conv2d({ dataFormat: "channelsFirst", filters: 256, kernelSize: 3, activation: "relu" }));
+    model.add(tf.layers.dropout({ rate : 0.15 }));
 
     // Classification
     model.add(tf.layers.flatten());

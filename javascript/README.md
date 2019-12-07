@@ -15,7 +15,7 @@ At the root level, you will find the following files and folders:
 - ``bots/``: In there, you will find an example of bot configuration that you need to improve.  
 - ``data/``: Contains the training dataset.
 - ``src/``: Starter code used by other files. You do not need to edit this to succeed, but if you want to, you can do it.  
-- ``trained-models/``: Contains the save files for your neural networks after training.  
+- ``saved-models/``: Contains the save files for your neural networks after training.  
 - ``gamelogs/``: Contains the games replay files.
 - ``play.js``: Use this when you want to play live.  
 - ``simulate.js``: Use this when you want to play multiple games quickly. You will see some useful stats about the games.  

@@ -13,7 +13,7 @@ const GAMES_TO_LOAD = process.argv[2] || 25;
 
 test();
 async function test() {
-    const classifier = await tf.loadLayersModel(`file://./trained-models/${bot.modelName}/model.json`);
+    const classifier = await tf.loadLayersModel(`file://./saved-models/${bot.modelName}/model.json`);
 
     console.log("\nUsing model", bot.modelName);
     console.group("Testing");

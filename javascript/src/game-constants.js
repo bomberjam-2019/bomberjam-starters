@@ -32,8 +32,8 @@ const BOARD = {
 const BOMB_MAX_COUNTDOWN = 8;
 
 const BONUSES = {
-    "bomb": 1,
-    "fire": 2
+    "bomb": 0.5,
+    "fire": 1
 }
 
 module.exports = {
