@@ -10,7 +10,7 @@ namespace Bomberjam.Bot.AI
         T ExtractDataPoint(GameState state, string myPlayerId, string label = null);
         
         // Create model + output metrics
-        void Train(string gameLogsPath);
+        void Train(string gameLogsPath, bool calculateMetrics = false);
 
         Task Save(string path);
 

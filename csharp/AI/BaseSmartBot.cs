@@ -15,15 +15,16 @@ namespace Bomberjam.Bot.AI
         private readonly MulticlassAlgorithmType _algorithmType;
         private readonly int _sampleSize;
 
-        protected MLContext _mlContext;
+        protected MLContext MlContext;
         private PredictionEngine<T, Prediction> _predictionEngine;
         private DataViewSchema _schema;
         private ITransformer _trainedModel;
 
         protected BaseSmartBot(MulticlassAlgorithmType algorithmType, int sampleSize)
         {
-            _algorithmType = algorithmType;
-            _sampleSize = sampleSize;
+            this.MlContext = new MLContext(seed: 0);
+            this._algorithmType = algorithmType;
+            this._sampleSize = sampleSize;
         }
 
 
@@ -44,14 +45,14 @@ namespace Bomberjam.Bot.AI
         }
 
 
-        public void Train(string gameLogsPath)
+        public void Train(string gameLogsPath, bool calculateMetrics = false)
         {
-            _mlContext = new MLContext(0);
+            MlContext = new MLContext(0);
 
             var data = LoadDataPoint(gameLogsPath);
-            var dataView = _mlContext.Data.LoadFromEnumerable(data);
+            var dataView = MlContext.Data.LoadFromEnumerable(data);
 
-            var splitDataView = _mlContext.Data.TrainTestSplit(dataView, 0.2);
+            var splitDataView = MlContext.Data.TrainTestSplit(dataView, 0.2);
             _schema = dataView.Schema;
 
             var trainingPipeline = GetPredictorPipeline();
@@ -61,15 +62,18 @@ namespace Bomberjam.Bot.AI
             //var previewDebugging = trainingPipeline.Preview(splitDataView.TestSet);
 
             _trainedModel = trainingPipeline.Fit(splitDataView.TrainSet);
-            _predictionEngine = _mlContext.Model.CreatePredictionEngine<T, Prediction>(_trainedModel);
+            _predictionEngine = MlContext.Model.CreatePredictionEngine<T, Prediction>(_trainedModel);
 
-            ComputeMetrics(splitDataView.TestSet);
+            if (calculateMetrics)
+            {
+                ComputeMetrics(splitDataView.TestSet);
+            }
         }
         
 
         public Task Save(string path)
         {
-            _mlContext.Model.Save(_trainedModel, _schema, path);
+            MlContext.Model.Save(_trainedModel, _schema, path);
             Console.WriteLine(@"Model saved!");
 
             return Task.CompletedTask;
@@ -77,9 +81,9 @@ namespace Bomberjam.Bot.AI
 
         public Task Load(string path)
         {
-            var loadedModel = _mlContext.Model.Load(path, out var modelInputSchema);
+            var loadedModel = MlContext.Model.Load(path, out var modelInputSchema);
 
-            _predictionEngine = _mlContext.Model.CreatePredictionEngine<T, Prediction>(loadedModel);
+            _predictionEngine = MlContext.Model.CreatePredictionEngine<T, Prediction>(loadedModel);
 
             return Task.CompletedTask;
         }
@@ -95,12 +99,10 @@ namespace Bomberjam.Bot.AI
         // https://docs.microsoft.com/en-us/dotnet/machine-learning/how-to-guides/explain-machine-learning-model-permutation-feature-importance-ml-net
         public void EvaluateFeatures(string gameLogsPath)
         {
-            _mlContext = new MLContext(0);
-
             var data = LoadDataPoint(gameLogsPath);
-            var dataView = _mlContext.Data.LoadFromEnumerable(data);
+            var dataView = MlContext.Data.LoadFromEnumerable(data);
 
-            var splitDataView = _mlContext.Data.TrainTestSplit(dataView, 0.2);
+            var splitDataView = MlContext.Data.TrainTestSplit(dataView, 0.2);
 
             var trainingPipeline = GetLightGbmFmiPipeline();
 
@@ -114,7 +116,7 @@ namespace Bomberjam.Bot.AI
 
             // Compute the permutation metrics for the linear model using the normalized data.
             var permutationMetrics =
-                _mlContext.MulticlassClassification.PermutationFeatureImportance(linearPredictor, transformedData);
+                MlContext.MulticlassClassification.PermutationFeatureImportance(linearPredictor, transformedData);
 
             // Now let's look at which features are most important to the model
             // overall. Get the feature indices sorted by their impact on
@@ -144,7 +146,7 @@ namespace Bomberjam.Bot.AI
         {
             // Convert label in Key object that ML.Net need in classification algorithm
             IEstimator<ITransformer> pipeline =
-                _mlContext.Transforms.Conversion.MapValueToKey(nameof(LabeledDataPoint.Label));
+                MlContext.Transforms.Conversion.MapValueToKey(nameof(LabeledDataPoint.Label));
 
             // Get feature pipeline
             var featureTransformers = GetFeaturePipeline();
@@ -156,16 +158,16 @@ namespace Bomberjam.Bot.AI
                 case MulticlassAlgorithmType.NaiveBayes:
                     // https://docs.microsoft.com/en-us/dotnet/api/microsoft.ml.trainers.naivebayesmulticlasstrainer?view=ml-dotnet
                     // Only support binary feature values
-                    pipeline = pipeline.Append(_mlContext.MulticlassClassification.Trainers.NaiveBayes());
+                    pipeline = pipeline.Append(MlContext.MulticlassClassification.Trainers.NaiveBayes());
                     break;
                 case MulticlassAlgorithmType.LbfgsMaximumEntropy:
                     // https://docs.microsoft.com/en-us/dotnet/api/microsoft.ml.trainers.lbfgsmaximumentropymulticlasstrainer?view=ml-dotnet
                     // Need normalization
-                    pipeline = pipeline.Append(_mlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy());
+                    pipeline = pipeline.Append(MlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy());
                     break;
                 case MulticlassAlgorithmType.LightGbm:
                     // https://docs.microsoft.com/en-us/dotnet/api/microsoft.ml.trainers.lightgbm.lightgbmmulticlasstrainer?view=ml-dotnet
-                    pipeline = pipeline.Append(_mlContext.MulticlassClassification.Trainers.LightGbm());
+                    pipeline = pipeline.Append(MlContext.MulticlassClassification.Trainers.LightGbm());
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -173,7 +175,7 @@ namespace Bomberjam.Bot.AI
 
 
             // Convert back Key into our label
-            pipeline = pipeline.Append(_mlContext.Transforms.Conversion.MapKeyToValue(
+            pipeline = pipeline.Append(MlContext.Transforms.Conversion.MapKeyToValue(
                 inputColumnName: "PredictedLabel",
                 outputColumnName: nameof(Prediction.PredictedLabel)
             ));
@@ -186,13 +188,13 @@ namespace Bomberjam.Bot.AI
         {
             // Convert label in Key object that ML.Net need in classification algorithm
             IEstimator<ITransformer> pipeline =
-                _mlContext.Transforms.Conversion.MapValueToKey(nameof(LabeledDataPoint.Label));
+                MlContext.Transforms.Conversion.MapValueToKey(nameof(LabeledDataPoint.Label));
 
             // Get feature pipeline
             var featureTransformers = GetFeaturePipeline();
             foreach (var featureTransformer in featureTransformers) pipeline = pipeline.Append(featureTransformer);
 
-            var finalPipeline = pipeline.Append(_mlContext.MulticlassClassification.Trainers.LightGbm());
+            var finalPipeline = pipeline.Append(MlContext.MulticlassClassification.Trainers.LightGbm());
 
             return finalPipeline;
         }
@@ -204,7 +206,7 @@ namespace Bomberjam.Bot.AI
         public void ComputeMetrics(IDataView testDataView)
         {
             // TODO: Add more explication of metric meaning
-            var metrics = _mlContext.MulticlassClassification.Evaluate(_trainedModel.Transform(testDataView));
+            var metrics = MlContext.MulticlassClassification.Evaluate(_trainedModel.Transform(testDataView));
 
             // % where predicted value = actual value
             Console.WriteLine($"Micro Accuracy: {metrics.MicroAccuracy:F2}");

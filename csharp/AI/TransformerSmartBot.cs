@@ -65,7 +65,7 @@ namespace Bomberjam.Bot.AI
         {
             return new IEstimator<ITransformer>[]
             {
-                this._mlContext.Transforms.Concatenate("Features",
+                this.MlContext.Transforms.Concatenate("Features",
                     nameof(PlayerState.TopTile),
                     nameof(PlayerState.TwoTopTile),
                     nameof(PlayerState.TopTile),
