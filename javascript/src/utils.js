@@ -31,7 +31,7 @@ function argmax(array) {
         .index;
 }
 
-function padMatrix(matrix, padSize, padValue) {
+function padMap(matrix, padSize, padValue) {
     const paddedMatrix = [];
     for (let i = 0; i < padSize; i++) {
         const padding = (new Array(matrix[0].length + 2 * padSize).fill(padValue));
@@ -56,5 +56,5 @@ module.exports = {
     oneHotVector,
     createMap,
     argmax,
-    padMatrix
+    padMap
 };

@@ -1,0 +1,58 @@
+{
+    "up": {
+        "expected": 5625,
+        "predicted": 7077,
+        "good": 4440,
+        "expected %": 16,
+        "predicted %": 20,
+        "accuracy %": 79
+    },
+    "down": {
+        "expected": 5590,
+        "predicted": 5847,
+        "good": 3887,
+        "expected %": 16,
+        "predicted %": 17,
+        "accuracy %": 70
+    },
+    "left": {
+        "expected": 5141,
+        "predicted": 5593,
+        "good": 3757,
+        "expected %": 15,
+        "predicted %": 16,
+        "accuracy %": 73
+    },
+    "right": {
+        "expected": 4913,
+        "predicted": 5510,
+        "good": 3520,
+        "expected %": 14,
+        "predicted %": 16,
+        "accuracy %": 72
+    },
+    "stay": {
+        "expected": 10628,
+        "predicted": 8603,
+        "good": 7592,
+        "expected %": 31,
+        "predicted %": 25,
+        "accuracy %": 71
+    },
+    "bomb": {
+        "expected": 2835,
+        "predicted": 2102,
+        "good": 1256,
+        "expected %": 8,
+        "predicted %": 6,
+        "accuracy %": 44
+    },
+    "total": {
+        "expected": 34732,
+        "predicted": 34732,
+        "good": 24452,
+        "expected %": 100,
+        "predicted %": 100,
+        "accuracy %": 70
+    }
+}

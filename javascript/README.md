@@ -59,5 +59,7 @@ You do not need to format the labels, but as you've read above, you will need to
 The ``train.js`` script will run through all the files by batches. It will fit your model on each batch, save your model, and fit on the next batch.  
 It is VERY long to train through all the files. You do not need to train through all the files and that is why the model is saved after each batch.  
 
-Note that depending on your models and the specified batch size, training might take a lot of RAM. Node has a low memory limit, but you can increase it like so:  
+Note that depending on your models and the specified batch size, training might take a lot of RAM and exceed Node's limits.  
+The error when that happens looks like ``FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory``  
+However, you can increase this limit, like so:  
 ``node --max-old-space-size=4096 train.js``  

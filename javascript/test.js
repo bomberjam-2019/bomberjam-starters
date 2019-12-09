@@ -4,6 +4,7 @@ require("@tensorflow/tfjs-node");
 const data = require("./src/data");
 const { bot } = require("./bots");
 const { ACTION_STRINGS } = require("./src/game-constants");
+const { writeFileSync } = require("./src/file-operations");
 
 /*
 *   You can pass an argument for the number of games to load for the test.
@@ -43,6 +44,8 @@ async function test() {
     crunchAnswersData(answers);
 
     console.table(answers);
+
+    writeFileSync(`./saved-models/${bot.modelName}/test.json`, answers);
 }
 
 function answerStruct() {
