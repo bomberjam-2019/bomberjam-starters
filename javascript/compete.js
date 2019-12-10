@@ -65,7 +65,7 @@ async function simulateMultipleBots() {
     for (const modelName in averages) {
         averages[modelName] = Math.round(averages[modelName] / TOTAL_NUMBER_OF_GAMES);
     }
-    results["Average"] = averages;
+    results["Average score"] = averages;
     results["Wins"] = wins;
     results["Win rate"] = Object.keys(wins).reduce((acc, modelName) => ({ ...acc, [modelName]: `${Math.round(wins[modelName] / TOTAL_NUMBER_OF_GAMES * 100)}%` }), {});
     console.group("\nResults:");
