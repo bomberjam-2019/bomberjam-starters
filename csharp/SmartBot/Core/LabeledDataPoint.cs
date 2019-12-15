@@ -1,6 +1,4 @@
-using Microsoft.ML.Data;
-
-namespace Bomberjam.Bot
+namespace Bomberjam.Bot.SmartBot.Core
 {
     public abstract class LabeledDataPoint
     {

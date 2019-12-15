@@ -8,11 +8,11 @@ using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.ML.Trainers;
 
-namespace Bomberjam.Bot.AI
+namespace Bomberjam.Bot.SmartBot.Core
 {
     public abstract class BaseSmartBot<T> : ISmartBot<T> where T : LabeledDataPoint
     {
-        private readonly MulticlassAlgorithmType _algorithmType;
+        private readonly MultiClassAlgorithmType _algorithmType;
         private readonly int _sampleSize;
 
         protected MLContext MlContext;
@@ -20,7 +20,7 @@ namespace Bomberjam.Bot.AI
         private DataViewSchema _schema;
         private ITransformer _trainedModel;
 
-        protected BaseSmartBot(MulticlassAlgorithmType algorithmType, int sampleSize)
+        protected BaseSmartBot(MultiClassAlgorithmType algorithmType, int sampleSize)
         {
             this.MlContext = new MLContext(seed: 0);
             this._algorithmType = algorithmType;
@@ -57,7 +57,7 @@ namespace Bomberjam.Bot.AI
 
             var trainingPipeline = GetPredictorPipeline();
 
-            // TODO: You can debug your pipeline by preview the columns:
+            // TODO-Extra: You can debug your pipeline by preview the columns:
             // https://docs.microsoft.com/en-us/dotnet/machine-learning/how-to-guides/inspect-intermediate-data-ml-net#preview-result-of-pre-processing-or-training-on-a-subset-of-the-data
             //var previewDebugging = trainingPipeline.Preview(splitDataView.TestSet);
 
@@ -95,7 +95,7 @@ namespace Bomberjam.Bot.AI
             return Enum.Parse<GameAction>(predictedLabel);
         }
         
-                // Using LightGbm algorithm
+        // Using LightGbm algorithm
         // https://docs.microsoft.com/en-us/dotnet/machine-learning/how-to-guides/explain-machine-learning-model-permutation-feature-importance-ml-net
         public void EvaluateFeatures(string gameLogsPath)
         {
@@ -152,22 +152,25 @@ namespace Bomberjam.Bot.AI
             var featureTransformers = GetFeaturePipeline();
             foreach (var featureTransformer in featureTransformers) pipeline = pipeline.Append(featureTransformer);
 
-            // TODO: You can add parameter to your trainers.
+            // TODO-Extra: You can add parameter to your trainers.
             switch (_algorithmType)
             {
-                case MulticlassAlgorithmType.NaiveBayes:
+                case MultiClassAlgorithmType.NaiveBayes:
                     // https://docs.microsoft.com/en-us/dotnet/api/microsoft.ml.trainers.naivebayesmulticlasstrainer?view=ml-dotnet
                     // Only support binary feature values
                     pipeline = pipeline.Append(MlContext.MulticlassClassification.Trainers.NaiveBayes());
                     break;
-                case MulticlassAlgorithmType.LbfgsMaximumEntropy:
+                case MultiClassAlgorithmType.LbfgsMaximumEntropy:
                     // https://docs.microsoft.com/en-us/dotnet/api/microsoft.ml.trainers.lbfgsmaximumentropymulticlasstrainer?view=ml-dotnet
                     // Need normalization
                     pipeline = pipeline.Append(MlContext.MulticlassClassification.Trainers.LbfgsMaximumEntropy());
                     break;
-                case MulticlassAlgorithmType.LightGbm:
+                case MultiClassAlgorithmType.LightGbm:
                     // https://docs.microsoft.com/en-us/dotnet/api/microsoft.ml.trainers.lightgbm.lightgbmmulticlasstrainer?view=ml-dotnet
                     pipeline = pipeline.Append(MlContext.MulticlassClassification.Trainers.LightGbm());
+                    break;
+                case MultiClassAlgorithmType.SdcaMaximumEntropy:
+                    pipeline = pipeline.Append(MlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy());
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -202,10 +205,9 @@ namespace Bomberjam.Bot.AI
         protected abstract IEnumerable<IEstimator<ITransformer>> GetFeaturePipeline();
 
 
-        // TODO: You can add more metrics
+        // TODO-Extra: You can add more metrics
         public void ComputeMetrics(IDataView testDataView)
         {
-            // TODO: Add more explication of metric meaning
             var metrics = MlContext.MulticlassClassification.Evaluate(_trainedModel.Transform(testDataView));
 
             // % where predicted value = actual value
@@ -234,66 +236,14 @@ namespace Bomberjam.Bot.AI
             return fileEntries.Take(_sampleSize).SelectMany(x => GenerateModel(new Gamelog(x)));
         }
 
-        // TODO: You can filter the data you want to train on here
-        // Idea:
-        // - Normalize actions (there is a lot more stay than bomb)
-        // - Only train with the winners move?
+        // TODO-Extra: You can filter the data you want to train on here
         private IEnumerable<T> GenerateModel(Gamelog gamelog)
         {
             foreach (var gameState in gamelog)
             foreach (var playerId in gameState.Actions.Keys)
                 yield return ExtractDataPoint(gameState.State, playerId, gameState.Actions[playerId].ToString());
         }
-
-//        private IEnumerable<T> GenerateNormalizedModel(Gamelog gamelog)
-//        {
-//            var allActions = gamelog.SelectMany(x =>
-//            {
-//                return x.Actions.Values;
-//            }).Where(x => x.HasValue);
-//
-//            var minimalAction = allActions.GroupBy(x =>
-//            {
-//                return x;
-//            }).Select(a =>
-//            {
-//                return a.Count();
-//            }).Min();
-//
-//            var shuffledGameLog = gamelog.OrderBy(a => Guid.NewGuid()).ToList();
-//            var normalizeHelper = new Dictionary<GameAction, int>();
-//
-//
-//            foreach (GameStateStep step in shuffledGameLog)
-//            foreach (var player in step.Actions.Keys)
-//            {
-//                if (!step.Actions[player].HasValue)
-//                {
-//                    continue;
-//                }
-//
-//                if (normalizeHelper.TryGetValue(step.Actions[player].Value, out var count))
-//                {
-//                    if (count >= minimalAction)
-//                    {
-//                        continue;
-//                    }
-//
-//                    normalizeHelper[step.Actions[player].Value] = ++count;
-//                }
-//                else
-//                {
-//                    normalizeHelper.Add(step.Actions[player].Value, 1);
-//                }
-//
-//                if ((step.Actions[player].Value == GameAction.Bomb || step.Actions[player].Value == GameAction.Down))
-//                {
-//                    yield return this.GenerateData(step, player);
-//                }
-//
-//            }
-//        }
-
+        
         private class Prediction
         {
             // Predicted label from the trainer.

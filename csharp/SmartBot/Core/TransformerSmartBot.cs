@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using Bomberjam.Client;
 using Microsoft.ML;
-using Microsoft.ML.Data;
 
-namespace Bomberjam.Bot.AI
+namespace Bomberjam.Bot.SmartBot.Core
 {
     // Use transform on features
     public class TransformerSmartBot: BaseSmartBot<TransformerSmartBot.PlayerState>
@@ -35,7 +33,7 @@ namespace Bomberjam.Bot.AI
 
         }
 
-        public TransformerSmartBot(MulticlassAlgorithmType algorithmType, int sampleSize = 100): base(algorithmType, sampleSize)
+        public TransformerSmartBot(MultiClassAlgorithmType algorithmType, int sampleSize = 100): base(algorithmType, sampleSize)
         {
         }
 
@@ -47,14 +45,14 @@ namespace Bomberjam.Bot.AI
 
             return new PlayerState
             {
-                TwoTopTile = GameStateUtils.GetBoardTile(state, x, y - 2, myPlayerId),
-                TopTile = GameStateUtils.GetBoardTile(state, x, y - 1, myPlayerId),
-                TwoLeftTile = GameStateUtils.GetBoardTile(state, x - 2, y, myPlayerId),
-                LeftTile = GameStateUtils.GetBoardTile(state, x - 1, y, myPlayerId),
-                RightTile = GameStateUtils.GetBoardTile(state, x + 1, y, myPlayerId),
-                TwoRightTile = GameStateUtils.GetBoardTile(state, x + 2, y, myPlayerId),
-                BottomCenterTile = GameStateUtils.GetBoardTile(state, x, y + 1, myPlayerId),
-                TwoBottomTile = GameStateUtils.GetBoardTile(state, x, y + 2, myPlayerId),
+                TwoTopTile = (uint)  GameStateUtils.GetBoardTile(state, x, y - 2, myPlayerId),
+                TopTile = (uint)  GameStateUtils.GetBoardTile(state, x, y - 1, myPlayerId),
+                TwoLeftTile = (uint)  GameStateUtils.GetBoardTile(state, x - 2, y, myPlayerId),
+                LeftTile = (uint) GameStateUtils.GetBoardTile(state, x - 1, y, myPlayerId),
+                RightTile = (uint)  GameStateUtils.GetBoardTile(state, x + 1, y, myPlayerId),
+                TwoRightTile = (uint)  GameStateUtils.GetBoardTile(state, x + 2, y, myPlayerId),
+                BottomCenterTile = (uint)  GameStateUtils.GetBoardTile(state, x, y + 1, myPlayerId),
+                TwoBottomTile = (uint)  GameStateUtils.GetBoardTile(state, x, y + 2, myPlayerId),
                 Alive = (uint) (player.Alive ? 1 : 0),
                 Respawning = (uint) player.Respawning,
                 BombsLeft = (uint) player.BombsLeft,

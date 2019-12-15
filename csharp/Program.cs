@@ -2,30 +2,40 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Bomberjam.Bot.AI;
+using Bomberjam.Bot.SmartBot;
+using Bomberjam.Bot.SmartBot.Core;
 using Bomberjam.Client;
 
 namespace Bomberjam.Bot
 {
     public class Program
     {
-        private const string gameLogsPath = @"F:\tmp\8000_gamelogs";
+        // TODO-Setup-1: Update path of gamelogs
+        private const string gameLogsPath = @"F:\tmp\6k_gamelogs";
+        //private const string gameLogsPath = @"F:\tmp\8000_gamelogs";
         private const string modelSavePath = @"F:\tmp\smartBot.zip";
         
         enum ProgramRole {
+            // Train a model and compute metrics (don't save)
+            // Will also simulate game to get real world performance.
             TestModel,
+            // Train a model and save it (required to play official game)
             TrainAndSave,
+            // Train a model and launch a game (don't use saved model)
             TrainAndTestGame,
+            // Evaluate the quality of extracted features
             EvaluateFeature,
+            // Load saved model and launch a game
             PlayGame,
         }
 
         public static async Task Main()
         {
-            var role = ProgramRole.TestModel;
+            // TODO-Setup-2: Choose if you want to train, test or play
+            var role = ProgramRole.TrainAndTestGame;
             
-            //var smartBot = new TransformerSmartBot(MulticlassAlgorithmType.LightGbm, 20);
-            var smartBot = new RawSmartBot(MulticlassAlgorithmType.LightGbm, 100);
+            // TODO-Extra: You can try using a different algorithm
+            var smartBot = new RawSmartBot(MultiClassAlgorithmType.LightGbm, 50);
 
             switch (role)
             {
@@ -50,7 +60,7 @@ namespace Bomberjam.Bot
         }
         
         // https://docs.microsoft.com/en-us/dotnet/machine-learning/how-to-guides/explain-machine-learning-model-permutation-feature-importance-ml-net
-        // Currently only support impact LightGbm algo
+        // Currently only support impact on the LightGbm
         public static void EvaluateFeatures<T>(ISmartBot<T> smartBot) where T : LabeledDataPoint
         {
             smartBot.EvaluateFeatures(gameLogsPath);
@@ -84,7 +94,7 @@ namespace Bomberjam.Bot
         {
             smartBot.Train(gameLogsPath);
 
-            await PlayInBrowserExample(smartBot);
+            await PlayInBrowserExample(smartBot, smartBot, smartBot, smartBot);
         }
 
         private static async Task Game<T>(ISmartBot<T> smartBot) where T : LabeledDataPoint
@@ -120,12 +130,15 @@ namespace Bomberjam.Bot
         // Simulate real game to see how your bot will perform in real games.
         private static async Task SimulatGamesScore<T>(ISmartBot<T> smartBot, int gameCount = 50) where T : LabeledDataPoint
         {
+            Console.WriteLine("Simulating game.");
+            
+            // TODO-Extra: Try using different combination bots (you can use random) to compares yours in different settings.
             var bots = new IBot[]
             {
                 smartBot,
                 smartBot,
                 smartBot,
-                smartBot
+                smartBot,
             };
             
             var playerScores = new Dictionary<string, List<int>>()
@@ -160,6 +173,7 @@ namespace Bomberjam.Bot
             Console.WriteLine($"Average scores p2: {avgP2}");
             Console.WriteLine($"Average scores p3: {avgP3}");
             Console.WriteLine($"Average scores p4: {avgP4}");
+            Console.WriteLine($"Average average: {(avgP1 + avgP2 + avgP3 + avgP4) / 4}");
 
 
         }

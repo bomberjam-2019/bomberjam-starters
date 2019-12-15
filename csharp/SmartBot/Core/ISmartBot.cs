@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Bomberjam.Client;
 
-namespace Bomberjam.Bot.AI
+namespace Bomberjam.Bot.SmartBot.Core
 {
     public interface ISmartBot<T>: IBot where T: LabeledDataPoint
     {
