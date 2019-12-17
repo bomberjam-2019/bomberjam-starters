@@ -35,7 +35,8 @@ namespace Bomberjam.Bot
             var role = ProgramRole.TrainAndTestGame;
             
             // TODO-Extra: You can try using a different algorithm
-            var smartBot = new RawSmartBot(MultiClassAlgorithmType.LightGbm, 50);
+            // TODO-Extra: You can try different sample size
+            var smartBot = new RawSmartBot(MultiClassAlgorithmType.LightGbm, 100);
 
             switch (role)
             {
