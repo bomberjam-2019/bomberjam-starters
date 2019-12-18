@@ -50,7 +50,7 @@ async function train() {
         */
         const fitResult = await model.fit(train.inputs, train.outputs, {
             batchSize: 64,
-            epochs: 3,
+             epochs: 3,
             shuffle: true,
             validationSplit: 0.15,
             callbacks: {

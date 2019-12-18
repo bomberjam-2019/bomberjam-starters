@@ -1,48 +1,47 @@
-const TILE_NAMES = {
-    empty: "empty",
-    blocked: "blocked",
-    breakable: "breakable",
-    explosion: "explosion"
-};
+const { Board, DEFAULT_BOMB_COUNTDOWN, DEFAULT_BOMB_RANGE, AllBonusCode, AllActions, AllTiles } = require("bomberjam-backend");
 
-const TILE_MAPPING = {
-    ".": TILE_NAMES.empty,
-    "#": TILE_NAMES.blocked,
-    "+": TILE_NAMES.breakable,
-    "*": TILE_NAMES.explosion
-};
+const ALL_TILES = Object.keys(AllTiles).reduce((acc, tileString) => {
+    const camelCasedTileString = tileString.charAt(0).toLowerCase() + tileString.slice(1);
+    acc[camelCasedTileString] = AllTiles[tileString];
 
-const ALL_ACTIONS = {
-    "up": 0,
-    "down": 1,
-    "left": 2,
-    "right": 3,
-    "stay": 4,
-    "bomb": 5
-};
+    return acc;
+}, {});
 
-const ACTION_STRINGS = Object.keys(ALL_ACTIONS);
-const ACTION_SIZE = Object.values(ALL_ACTIONS).length;
+const ACTION_STRINGS = Object.values(AllActions).reduce((acc, actionString, i) => {
+    acc[i] = actionString;
+
+    return acc;
+}, {});
+
+const ACTION_NUMBERS = Object.values(AllActions).reduce((acc, actionString, i) => {
+    acc[actionString] = i;
+
+    return acc;
+}, {});
+
+const ACTION_SIZE = Object.values(AllActions).length;
 
 const BOARD = {
-    width: 13,
-    height: 11
-}
+    width: Board.width,
+    height: Board.height
+};
 
-const BOMB_MAX_COUNTDOWN = 8;
+const BOMB_MAX_COUNTDOWN = DEFAULT_BOMB_COUNTDOWN;
+const BOMB_MIN_RANGE = DEFAULT_BOMB_RANGE;
 
-const BONUSES = {
-    "bomb": 0.5,
-    "fire": 1
-}
+const BONUS_NUMBERS = Object.values(AllBonusCode).reduce((acc, bonusCode, i) => {
+    acc[bonusCode] = i;
+
+    return acc;
+}, {});
 
 module.exports = {
-    TILE_NAMES,
-    TILE_MAPPING,
-    ALL_ACTIONS,
+    ALL_TILES,
     ACTION_STRINGS,
+    ACTION_NUMBERS,
     ACTION_SIZE,
     BOARD,
     BOMB_MAX_COUNTDOWN,
-    BONUSES
+    BOMB_MIN_RANGE,
+    BONUS_NUMBERS
 };

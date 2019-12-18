@@ -42,7 +42,9 @@ Some scripts support arguments if you want to modify their behaviours:
 ``node test.js NUMBER_OF_GAMES_TO_TEST_AGAINST`` (defaults to 25)  
 ``node train.js NUMBER_OF_GAMES_TO_LOAD_IN_MEMORY_AT_THE_SAME_TIME`` (defaults to 50, increase with caution)  
 
-** To watch your gamelogs, you need to start the server by using ``npm run server``. The url for the Bomberjam UI will be displayed. Once in there, you can use the replay feature to import a gamelog file.  
+Running ``test.js`` and ``simulate.js`` will save the results in a json file alongside your saved model.  
+
+To watch your gamelogs, you need to start the server by using ``npm run server``. The url for the Bomberjam UI will be displayed. Once in there, you can use the replay feature to import a gamelog file.  
 
 ## The Bots Folder 
 All the utility scripts provided revolve around the export in ``bots/index.js``.  
@@ -78,8 +80,8 @@ However, you can increase this limit, like so:
 ``node --max-old-space-size=4096 train.js``  
 
 ## Prop tips
-You can expect pretty good results after 20-30 minutes of training. If you do not start to see a good behaviour after that much training, do not try to train it longer. Focus on changing your network or your input data.  
-You are multiple people in your team, use your CPUs wisely!  
-Look at your games! It is not because you have high accuracy or score that your bot performs well.  
-Use the scripts. I won't tell you how to use them, but I can tell you they are very useful.  
-Plug your laptops, you'll need the juice.  
+- You can expect pretty good results after 20-30 minutes of training. If you do not start to see a good behaviour after that much training, do not try to train it longer. Focus on changing your network or your input data.  
+- You are multiple people in your team, use your CPUs wisely!  
+- Look at your games! It is not because you have high accuracy or score that your bot performs well.  
+- Use the scripts. I won't tell you how to use them, but I can tell you they are very useful.  
+- Plug your laptops, you'll need the juice.  

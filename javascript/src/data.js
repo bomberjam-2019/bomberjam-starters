@@ -6,7 +6,7 @@ const path = require("path");
 const readline = require("readline");
 
 const { oneHotVector, argmax, shuffle } = require("./utils");
-const { ALL_ACTIONS, ACTION_SIZE } = require("./game-constants");
+const { ACTION_NUMBERS, ACTION_SIZE } = require("./game-constants");
 
 const DATA_DIRECTORY = "./data";
 
@@ -101,7 +101,7 @@ function formatTick({ state, actions }, tickFormatter) {
     const inputs = [];
     const outputs = [];
     for (const playerId in state.players) {
-        const actionTaken = ALL_ACTIONS[actions[playerId]];
+        const actionTaken = ACTION_NUMBERS[actions[playerId]];
         if (actionTaken === undefined) {
             // There's no action at the end of a game
             continue;

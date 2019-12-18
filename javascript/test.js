@@ -49,7 +49,7 @@ async function test() {
 }
 
 function answerStruct() {
-    return ACTION_STRINGS.reduce((acc, action) => {
+    return Object.values(ACTION_STRINGS).reduce((acc, action) => {
         acc[action] = {
             expected: 0,
             predicted: 0,

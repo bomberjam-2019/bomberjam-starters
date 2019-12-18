@@ -1,4 +1,4 @@
-const { TILE_NAMES, TILE_MAPPING, BOMB_MAX_COUNTDOWN, BONUSES, BOARD } = require("../../src/game-constants");
+const { ALL_TILES, BOMB_MAX_COUNTDOWN, BONUS_NUMBERS, BOARD } = require("../../src/game-constants");
 const { createMap, padMap } = require("../../src/utils");
 
 /*
@@ -29,12 +29,12 @@ function gameStateToModelInputConverter(state, playerId) {
     const blockedTilesMap = createMap(state.width, state.height);
     for (let x = 0; x < state.width; x++) {
         for (let y = 0; y < state.height; y++) {
-            const tile = TILE_MAPPING[state.tiles[x + y * state.width]];
-            if(tile === TILE_NAMES.breakable) {
+            const tile = state.tiles[x + y * state.width];
+            if(tile === ALL_TILES.block) {
                 breakableTilesMap[x][y] = 1;
             }
 
-            if(tile === TILE_NAMES.blocked) {
+            if(tile === ALL_TILES.wall) {
                 blockedTilesMap[x][y] = 1;
             }
         }
@@ -51,7 +51,7 @@ function gameStateToModelInputConverter(state, playerId) {
 
     const bonusesMap = createMap(state.width, state.height);
     for (const bonus of Object.values(state.bonuses)) {
-        bonusesMap[bonus.x][bonus.y] = BONUSES[bonus.type];
+        bonusesMap[bonus.x][bonus.y] = BONUS_NUMBERS[bonus.type];
     }
 
     const currentPlayerBombsLeftMap = createMap(state.width, state.height, currentPlayer.bombsLeft / currentPlayer.maxBombs);
