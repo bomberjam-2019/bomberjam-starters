@@ -5,9 +5,9 @@ const { baseDangerMatrix, baseDangerMatrixPad, baseBombsData, baseBombsDataPad }
 *   You can pass an argument for the number of games to play.
 *   Defaults to 10.
 */
-const NUMBER_OF_GAMES_PER_PLAYER = Number(process.argv[2] || 10);
+const NUMBER_OF_GAMES_TO_PLAY_IN_EACH_STARTING_POSITION = Number(process.argv[2] || 10);
 const NUMBER_OF_PLAYERS = 4;
-const TOTAL_NUMBER_OF_GAMES = NUMBER_OF_PLAYERS * NUMBER_OF_GAMES_PER_PLAYER;
+const TOTAL_NUMBER_OF_GAMES = NUMBER_OF_PLAYERS * NUMBER_OF_GAMES_TO_PLAY_IN_EACH_STARTING_POSITION;
 const SAVE_GAMELOG = true;
 
 simulateMultipleBots();
@@ -16,7 +16,7 @@ async function simulateMultipleBots() {
     let bots = [baseDangerMatrix.newBot(), baseDangerMatrixPad.newBot(), baseBombsData.newBot(), baseBombsDataPad.newBot()];
 
     console.group("\nPlaying 4 differents bots against each other");
-    console.log("Each bot will play", NUMBER_OF_GAMES_PER_PLAYER, "games as each player");
+    console.log("Each bot will play", NUMBER_OF_GAMES_TO_PLAY_IN_EACH_STARTING_POSITION, "games in each starting position");
     console.group("Selected bots:");
     for (const bot of bots) {
         if (bot.init) {
@@ -34,8 +34,8 @@ async function simulateMultipleBots() {
         console.group("Rotation", i + 1);
         results[`Rotation ${i + 1}`] = bots.reduce((acc, bot, index) => ({ ...acc, [bot.modelName]: playerIds[index] }), {});
 
-        for (let j = 1; j <= NUMBER_OF_GAMES_PER_PLAYER; j++) {
-            const gameNumber = i * NUMBER_OF_GAMES_PER_PLAYER + j;
+        for (let j = 1; j <= NUMBER_OF_GAMES_TO_PLAY_IN_EACH_STARTING_POSITION; j++) {
+            const gameNumber = i * NUMBER_OF_GAMES_TO_PLAY_IN_EACH_STARTING_POSITION + j;
             console.log("Game", gameNumber);
             const finalState = play(bots, SAVE_GAMELOG);
 

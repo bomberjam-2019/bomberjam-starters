@@ -1,34 +1,48 @@
 # Bomberjam Javascript Starter  
 Welcome to the Bomberjam Javascript Starter! In here you will find useful information about how to get started with training your bot, debugging its performance and seeing it play!  
 
-## Requirements
-You need Node.js and npm, nothing else!  
-If you hace chocolatey, run ``choco install nodejs.install`` or you can [install it yourself](https://nodejs.org/en/download/).  
-npm is always bundled with Node.js.  
+If at any point you have questions, don't hesitate to poke me! (Guillaume Docquier)
 
-## Before You Start
-Before you start, download the dataset we will provide you and extract it in ``data/``. It might take some time.  
-Also, run ``npm install`` and then ``npm run check-install``
+## Setup
+You do not need Python to run this starter. If you have errors that seem related to python, ignore them.  
+You will need to install NodeJS v12 and npm to complete the exercises.  
+- If you already have node installed, check the version with ``node -v``
+- If it's not 12.x, you need to update  
+
+NodeJS and npm are usually bundled together.  
+You can download NodeJS from their [official website](https://nodejs.org/en/) or install it through [chocolatey](https://chocolatey.org/packages/nodejs).  
+``choco install nodejs``
+
+Once all of this is done, run ``npm install``  
+Also, download the dataset we will provide you and extract it in ``data/``. It might take some time.  
+
+You can test that your installation worked by running ``node train.js``. You should see a bunch of numbers and a progress bar.  
+Note: Sometimes, tensorflow doesn't install properly. You'll get errors when trying to import it.  
+To fix this, you can run ``npm run fix-tf-install-unix`` or ``npm run fix-tf-install-windows``, depending on the type of terminal you are using (do you use ``ls`` or ``dir`` ?).  
 
 ## Project Structure  
 At the root level, you will find the following files and folders:  
-- ``bots/``: In there, you will find an example of bot configuration that you need to improve.  
-- ``data/``: Contains the training dataset.
-- ``src/``: Starter code used by other files. You do not need to edit this to succeed, but if you want to, you can do it.  
+- ``bots/``: This is where you'll code. We provide you with an example of bot configuration that you need to improve.  
+- ``data/``: Contains the training dataset, you need to extract the files there.
+- ``src/``: Starter code used by the starter. You do not need to edit this to succeed, but if you want to, you can do it.  
 - ``saved-models/``: Contains the save files for your neural networks after training.  
-- ``gamelogs/``: Contains the games replay files.
-- ``play.js``: Use this when you want to play live.  
-- ``simulate.js``: Use this when you want to play multiple games quickly. You will see some useful stats about the games.  
-- ``test.js``: Use this to debug your neural network. It will output information about the behaviour of your bot.  
+- ``gamelogs/``: Contains the games replay files. Simulations you run will be saved so you can look at them afterwards.
+- ``play.js``: Use this when you want to play a live game.  
+- ``simulate.js``: Use this when you want to play multiple games quickly with the same bot. You will see some useful stats about the games.  
+- ``compare-bots.js``: Use this when you want to pit your models against each other. This will help you determine which one performs best.    
+- ``test.js``: Use this to debug your neural network. It will output statistics about the predictions of your bot.  
 - ``train.js``: Use this to train your bot.  
 
-I suggest you try the script before starting, so you can see what each can offer you and how they work.  
+I suggest you try the scripts before starting, so you can see what each can offer you and how they work.  
 Example: ``node simulate.js``  
 
 Some scripts support arguments if you want to modify their behaviours:  
 ``node simulate.js NUMBER_OF_GAMES_TO_SIMULATE`` (defaults to 10)  
+``node compare-bots.js NUMBER_OF_GAMES_TO_PLAY_IN_EACH_STARTING_POSITION`` (defaults to 10)  
 ``node test.js NUMBER_OF_GAMES_TO_TEST_AGAINST`` (defaults to 25)  
 ``node train.js NUMBER_OF_GAMES_TO_LOAD_IN_MEMORY_AT_THE_SAME_TIME`` (defaults to 50, increase with caution)  
+
+** To watch your gamelogs, you need to start the server by using ``npm run server``. The url for the Bomberjam UI will be displayed. Once in there, you can use the replay feature to import a gamelog file.  
 
 ## The Bots Folder 
 All the utility scripts provided revolve around the export in ``bots/index.js``.  
@@ -42,19 +56,18 @@ If you want to try multiple models but keep the old ones, you can either branch 
 
 In a bot folder, you should find 4 files:  
 - ``index.js``: In here, you export the properties stated above from your other files.  
-- ``bot.js``: You won't need to edit this file unless you do some real fancy stuff. It exports ``newBot``. The bot class itself requires 2 functions: ``init`` and ``getAction``.  
 - ``data.js``: In here, you export ``gameStateToModelInputConverter`` and a ``DATA_SHAPE`` that you will need in ``model.js``.  
 - ``model.js``: In here, you export ``buildModel`` and a ``modelName``. It will contain the definition of your neural network.  
 
 Note that you can organize the code how you want it. The only important part are the expected exports stated earlier.  
 
 ## The Data And The Training Loop
-The provided data consists of 6 thousand games generated by a very good bot.  
+The provided data consists of 6,000 games generated by a very good bot.  
 Each file contains an ordered list of game states and actions taken by each bot at that state.  
-You will use the game state as your input, and the actions as your label.   
+You will use the game state as your input, and the actions as your labels.
 
 Because each game contains 4 players, each game tick is in fact 4 sets of inputs and labels.  
-You do not need to format the labels, but as you've read above, you will need to convert a game state into a neural network input. 
+The starter abstracts the "labels" part for you. Your responsibility will be to convert the game state to an actual input for your neural network.  
 
 The ``train.js`` script will run through all the files by batches. It will fit your model on each batch, save your model, and fit on the next batch.  
 It is VERY long to train through all the files. You do not need to train through all the files and that is why the model is saved after each batch.  
@@ -63,3 +76,10 @@ Note that depending on your models and the specified batch size, training might 
 The error when that happens looks like ``FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory``  
 However, you can increase this limit, like so:  
 ``node --max-old-space-size=4096 train.js``  
+
+## Prop tips
+You can expect pretty good results after 20-30 minutes of training. If you do not start to see a good behaviour after that much training, do not try to train it longer. Focus on changing your network or your input data.  
+You are multiple people in your team, use your CPUs wisely!  
+Look at your games! It is not because you have high accuracy or score that your bot performs well.  
+Use the scripts. I won't tell you how to use them, but I can tell you they are very useful.  
+Plug your laptops, you'll need the juice.  
