@@ -1,5 +1,5 @@
 const { startSimulation } = require('bomberjam-backend');
-const { baseDangerMatrix, baseDangerMatrixPad, baseBombsData, baseBombsDataPad } = require("./bots");
+const { botsToCompare } = require("./bots");
 
 /*
 *   You can pass an argument for the number of games to play.
@@ -13,7 +13,7 @@ const SAVE_GAMELOG = true;
 simulateMultipleBots();
 async function simulateMultipleBots() {
     const playerIds = ["p1", "p2", "p3", "p4"];
-    let bots = [baseDangerMatrix.newBot(), baseDangerMatrixPad.newBot(), baseBombsData.newBot(), baseBombsDataPad.newBot()];
+    let bots = botsToCompare.map(bot => bot.newBot());
 
     console.group("\nPlaying 4 differents bots against each other");
     console.log("Each bot will play", NUMBER_OF_GAMES_TO_PLAY_IN_EACH_STARTING_POSITION, "games in each starting position");

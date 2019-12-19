@@ -55,6 +55,7 @@ It exports the bot you want to use, which consists of 4 properties:
 - ``gameStateToModelInputConverter``: Function that takes a game state and a player id and returns the data to be fed into you neural network.  
 
 If you want to try multiple models but keep the old ones, you can either branch out or create multiple folders inside ``bots/`` with your bot definitions. Then, in ``bots/index.js``, simply export the bot you want to use.  
+You can also export ``botsToCompare``. This is required for ``compare-bots.js``. Fill this with 4 bots.  
 
 In a bot folder, you should find 4 files:  
 - ``index.js``: In here, you export the properties stated above from your other files.  
@@ -73,6 +74,7 @@ The starter abstracts the "labels" part for you. Your responsibility will be to 
 
 The ``train.js`` script will run through all the files by batches. It will fit your model on each batch, save your model, and fit on the next batch.  
 It is VERY long to train through all the files. You do not need to train through all the files and that is why the model is saved after each batch.  
+Note that the script will also save your best model based on the validation accuracy as "MODEL_NAME-best". You can try and see if it's really better.  
 
 Note that depending on your models and the specified batch size, training might take a lot of RAM and exceed Node's limits.  
 The error when that happens looks like ``FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory``  

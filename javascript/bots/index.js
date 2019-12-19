@@ -2,14 +2,12 @@ const baseDangerMatrix = require("./base-danger-matrix");
 const baseDangerMatrixPad = require("./base-danger-matrix-pad");
 const baseBombsData = require("./base-bombs-data");
 const baseBombsDataPad = require("./base-bombs-data-pad");
+const baseModel = require("./base-model");
 
 const { RandomBot } = require("./randomBot");
 
 module.exports = {
     RandomBot,
-    bot: baseDangerMatrixPad,
-    baseDangerMatrix,
-    baseDangerMatrixPad,
-    baseBombsData,
-    baseBombsDataPad
+    bot: baseModel,
+    botsToCompare: [baseModel, baseModel, baseModel, baseModel]
 }
