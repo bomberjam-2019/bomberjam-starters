@@ -109,7 +109,7 @@ It exports the bot you want to use, which consists of 4 properties:
 - ``gameStateToModelInputConverter``: Function that takes a game state and a player id and returns the data to be fed into you neural network.  
 
 It is recommended to keep your models as you go in order to compare them.  
-To do so, reate multiple folders inside ``bots/`` with your bot definitions.  
+To do so, create multiple folders inside ``bots/`` with your bot definitions.  
 Give them different names, then in ``bots/index.js``, simply export the bot you want to use.  
 You can export ``botsToCompare``. This is will be used by ``compare-bots.js``. Fill this with 4 (different) bots.  
 
