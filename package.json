@@ -7,7 +7,7 @@
     "server": "node node_modules/bomberjam-backend/server.js"
   },
   "dependencies": {
-    "bomberjam-backend": "^1.0.12"
+    "bomberjam-backend": "^1.0.13"
   },
   "devDependencies": {
     "ts-node": "^8.1.0",
