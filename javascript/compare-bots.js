@@ -57,13 +57,14 @@ async function simulateMultipleBots() {
 
             wins[winner]++;
         }
+
+        results[(new Array(i + 1)).fill(" ").join("")] = { [" "]: "" }; // Make an empty row
         console.groupEnd();
 
         bots.push(bots.shift());
     }
     console.groupEnd();
 
-    results[" "] = { [" "]: "" }; // Make an empty row
     for (const modelName in averages) {
         averages[modelName] = Math.round(averages[modelName] / TOTAL_NUMBER_OF_GAMES);
     }
