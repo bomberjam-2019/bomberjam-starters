@@ -35,9 +35,7 @@ function buildModel() {
 
     // Classification
     model.add(tf.layers.flatten());
-    model.add(tf.layers.dense({ units: 128, activation: "relu" }));
-
-    model.add(tf.layers.dense({ units: 64, activation: "relu" }));
+    model.add(tf.layers.dense({ units: 1024, activation: "relu" }));
 
     model.add(tf.layers.dense({ units: ACTION_SIZE, activation: "softmax" }));
 
