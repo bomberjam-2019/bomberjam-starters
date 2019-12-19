@@ -2,14 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Bomberjam.Client;
 
-namespace Bomberjam.Bot.SmartBot
+namespace Bomberjam.Bot
 {
     public static class GameStateUtils
     {
         public enum Tile
         {
             OutOfScope = 0,
-            Block  = 1,
+            Block = 1,
             BreakableBlock = 2,
             Enemy = 3,
             Bomb = 4,
@@ -17,7 +17,7 @@ namespace Bomberjam.Bot.SmartBot
             Bonus = 6,
             Explosion = 7,
         }
-        
+
         private static readonly Dictionary<char, Tile> TileConverter = new Dictionary<char, Tile>()
         {
             {'+', Tile.BreakableBlock},
@@ -25,7 +25,7 @@ namespace Bomberjam.Bot.SmartBot
             {'#', Tile.Block},
             {'*', Tile.Explosion},
         };
-        
+
         // TODO-Main-2: Maybe this method hide too much information
         // Example: If an enemy and a bomb is on the same tile only return the bomb information
         public static Tile GetBoardTile(GameState state, int x, int y, string selfPlayerId)

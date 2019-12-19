@@ -1,4 +1,4 @@
-namespace Bomberjam.Bot.SmartBot.Core
+namespace Bomberjam.Bot.SmartBot
 {
     public abstract class LabeledDataPoint
     {

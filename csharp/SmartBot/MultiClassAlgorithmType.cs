@@ -1,11 +1,10 @@
-namespace Bomberjam.Bot.SmartBot.Core
+namespace Bomberjam.Bot.SmartBot
 {
     public enum MultiClassAlgorithmType
     {
         NaiveBayes,
         LbfgsMaximumEntropy,
-        LightGbm,        
+        LightGbm,
         SdcaMaximumEntropy,
-
     }
 }

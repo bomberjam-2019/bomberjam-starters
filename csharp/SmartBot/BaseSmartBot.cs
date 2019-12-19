@@ -8,7 +8,7 @@ using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.ML.Trainers;
 
-namespace Bomberjam.Bot.SmartBot.Core
+namespace Bomberjam.Bot.SmartBot
 {
     public abstract class BaseSmartBot<T> : ISmartBot<T> where T : LabeledDataPoint
     {
@@ -27,23 +27,18 @@ namespace Bomberjam.Bot.SmartBot.Core
             this._sampleSize = sampleSize;
         }
 
-
         public GameAction GetAction(GameState state, string myPlayerId)
         {
             var dataPoint = ExtractDataPoint(state, myPlayerId);
-
             return Predict(dataPoint);
         }
 
         public T ExtractDataPoint(GameState state, string myPlayerId, string label = null)
         {
             var dataPoint = ExtractFeatures(state, myPlayerId);
-
             if (!string.IsNullOrEmpty(label)) dataPoint.Label = label;
-
             return dataPoint;
         }
-
 
         public void Train(string gameLogsPath, bool calculateMetrics = false)
         {
@@ -69,32 +64,27 @@ namespace Bomberjam.Bot.SmartBot.Core
                 ComputeMetrics(splitDataView.TestSet);
             }
         }
-        
 
         public Task Save(string path)
         {
             MlContext.Model.Save(_trainedModel, _schema, path);
             Console.WriteLine(@"Model saved!");
-
             return Task.CompletedTask;
         }
 
         public Task Load(string path)
         {
             var loadedModel = MlContext.Model.Load(path, out var modelInputSchema);
-
             _predictionEngine = MlContext.Model.CreatePredictionEngine<T, Prediction>(loadedModel);
-
             return Task.CompletedTask;
         }
 
         public GameAction Predict(T dataPoint)
         {
             var predictedLabel = _predictionEngine.Predict(dataPoint).PredictedLabel;
-
             return Enum.Parse<GameAction>(predictedLabel);
         }
-        
+
         // Using LightGbm algorithm
         // https://docs.microsoft.com/en-us/dotnet/machine-learning/how-to-guides/explain-machine-learning-model-permutation-feature-importance-ml-net
         public void EvaluateFeatures(string gameLogsPath)
@@ -139,7 +129,6 @@ namespace Bomberjam.Bot.SmartBot.Core
                     1.96 * microAccuracy[i].StandardError);
         }
 
-
         protected abstract T ExtractFeatures(GameState state, string myPlayerId);
 
         private IEstimator<ITransformer> GetPredictorPipeline()
@@ -176,13 +165,11 @@ namespace Bomberjam.Bot.SmartBot.Core
                     throw new ArgumentOutOfRangeException();
             }
 
-
             // Convert back Key into our label
             pipeline = pipeline.Append(MlContext.Transforms.Conversion.MapKeyToValue(
                 inputColumnName: "PredictedLabel",
                 outputColumnName: nameof(Prediction.PredictedLabel)
             ));
-
 
             return pipeline;
         }
@@ -212,7 +199,7 @@ namespace Bomberjam.Bot.SmartBot.Core
 
             // % where predicted value = actual value
             Console.WriteLine($"Micro Accuracy: {metrics.MicroAccuracy:F2}");
-            
+
             // Moyenne de l'accuracy pour chaque classe.
             // Minority classes are given equal weight as the larger classes.
             Console.WriteLine($"Macro Accuracy: {metrics.MacroAccuracy:F2}");
@@ -243,16 +230,13 @@ namespace Bomberjam.Bot.SmartBot.Core
             foreach (var playerId in gameState.Actions.Keys)
                 yield return ExtractDataPoint(gameState.State, playerId, gameState.Actions[playerId].ToString());
         }
-        
+
         private class Prediction
         {
             // Predicted label from the trainer.
             public string PredictedLabel { get; set; }
 
-
-            [ColumnName("Score")]
-            public float[]
-                Scores { get; set; }
+            [ColumnName("Score")] public float[] Scores { get; set; }
         }
     }
 }
