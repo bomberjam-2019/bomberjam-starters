@@ -5,6 +5,8 @@
 .DS_Store
 Thumbs.db
 *.gamelog
+*.tfm
+*.zip
 
 ## Node.js stuff
 node_modules/
