@@ -5,12 +5,11 @@ If at any point you have questions, don't hesitate to poke me! (Guillaume Docqui
 
 ## Setup
 You do not need Python to run this starter. If you have errors that seem related to python, ignore them.  
-You will need to install NodeJS v12 and npm to complete the exercises.  
+You will need to install NodeJS v12 and npm
 - If you already have node installed, check the version with ``node -v``
 - If it's not 12.x, you need to update  
 
-NodeJS and npm are usually bundled together.  
-You can download NodeJS from their [official website](https://nodejs.org/en/) or install it through [chocolatey](https://chocolatey.org/packages/nodejs).  
+You can download NodeJS, which comes with npm, from their [official website](https://nodejs.org/en/) or install it through [chocolatey](https://chocolatey.org/packages/nodejs).  
 ``choco install nodejs``
 
 Once all of this is done, run ``npm install``  
@@ -19,6 +18,8 @@ Also, download the dataset we will provide you and extract it in ``data/``. It m
 You can test that your installation worked by running ``node train.js``. You should see a bunch of numbers and a progress bar.  
 Note: Sometimes, tensorflow doesn't install properly. You'll get errors when trying to import it.  
 To fix this, you can run ``npm run fix-tf-install-unix`` or ``npm run fix-tf-install-windows``, depending on the type of terminal you are using (do you use ``ls`` or ``dir`` ?).  
+
+![Training](assets/train.gif)
 
 ## Project Structure  
 At the root level, you will find the following files and folders:  
