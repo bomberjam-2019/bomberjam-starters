@@ -1,4 +1,4 @@
-const { ACTION_STRINGS, ACTION_SIZE } = require("../src/game-constants");
+const { ACTION_STRINGS, ACTION_SIZE } = require("./game-constants");
 
 class RandomBot {
     getAction(state, myPlayerId) {

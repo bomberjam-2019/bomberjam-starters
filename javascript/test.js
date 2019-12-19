@@ -3,7 +3,7 @@ require("@tensorflow/tfjs-node");
 
 const data = require("./src/data");
 const { bot } = require("./bots");
-const { ACTION_STRINGS } = require("./src/game-constants");
+const { ACTION_STRINGS } = require("./bots/game-constants");
 const { writeFileSync } = require("./src/file-operations");
 
 /*

@@ -1,7 +1,7 @@
 const tf = require("@tensorflow/tfjs");
 require("@tensorflow/tfjs-node");
 
-const { ACTION_STRINGS } = require("../src/game-constants");
+const { ACTION_STRINGS } = require("./game-constants");
 
 /*
 *   You can make your own bot class if you have special needs.

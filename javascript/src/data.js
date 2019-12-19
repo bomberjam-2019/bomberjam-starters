@@ -6,7 +6,7 @@ const path = require("path");
 const readline = require("readline");
 
 const { oneHotVector, argmax, shuffle } = require("./utils");
-const { ACTION_NUMBERS, ACTION_SIZE } = require("./game-constants");
+const { ACTION_NUMBERS, ACTION_SIZE } = require("../bots/game-constants");
 
 const DATA_DIRECTORY = "./data";
 

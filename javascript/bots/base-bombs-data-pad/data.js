@@ -1,13 +1,12 @@
-const { ALL_TILES, BOMB_MAX_COUNTDOWN, BONUS_NUMBERS, BOARD } = require("../../src/game-constants");
-const { createMap, padMap } = require("../../src/utils");
+const { ALL_TILES, BOMB_MAX_COUNTDOWN, BONUS_NUMBERS, BOARD } = require("../game-constants");
+const { createMap } = require("../utils");
 
 /*
 *   Do not forget to update this to match the dimensions that "gameStateToModelInputConverter" returns.
 *   It will be used to compile your model.
 */
 const NUMBER_OF_FEATURES = 11;
-const PADDING = 1;
-const DATA_SHAPE = [NUMBER_OF_FEATURES, BOARD.width + 2 * PADDING, BOARD.height + 2 * PADDING]
+const DATA_SHAPE = [NUMBER_OF_FEATURES, BOARD.width, BOARD.height]
 
 /*
 *   Transforms a gameState into an input for your neural network given the playerId.
@@ -59,17 +58,17 @@ function gameStateToModelInputConverter(state, playerId) {
     const suddenDeathMap = createMap(state.width, state.height, state.suddenDeathCountdown === 0 ? 1 : 0);
 
     return [
-        padMap(currentPlayerPositionMap, PADDING, 0),
-        padMap(otherPlayersPositionMap, PADDING, 0),
-        padMap(breakableTilesMap, PADDING, 0),
-        padMap(blockedTilesMap, PADDING, 1),
-        padMap(bombPositionsMap, PADDING, 0),
-        padMap(bombRangesMap, PADDING, 0),
-        padMap(bombCountdownsMap, PADDING, 0),
-        padMap(bonusesMap, PADDING, 0),
-        padMap(currentPlayerBombsLeftMap, PADDING, currentPlayerBombsLeftMap[0][0]),
-        padMap(currentPlayerBombRangeMap, PADDING, currentPlayerBombRangeMap[0][0]),
-        padMap(suddenDeathMap, PADDING, suddenDeathMap[0][0])
+        currentPlayerPositionMap,
+        otherPlayersPositionMap,
+        breakableTilesMap,
+        blockedTilesMap,
+        bombPositionsMap,
+        bombRangesMap,
+        bombCountdownsMap,
+        bonusesMap,
+        currentPlayerBombsLeftMap,
+        currentPlayerBombRangeMap,
+        suddenDeathMap
     ];
 }
 

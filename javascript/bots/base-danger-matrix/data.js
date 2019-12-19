@@ -1,5 +1,5 @@
-const { ALL_TILES, BOMB_MAX_COUNTDOWN, BONUS_NUMBERS, BOARD } = require("../../src/game-constants");
-const { createMap, padMap } = require("../../src/utils");
+const { ALL_TILES, BOMB_MAX_COUNTDOWN, BONUS_NUMBERS, BOARD } = require("../game-constants");
+const { createMap } = require("../utils");
 
 /*
 *   Do not forget to update this to match the dimensions that "gameStateToModelInputConverter" returns.

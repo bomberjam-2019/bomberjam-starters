@@ -7,7 +7,7 @@ const { RandomBot } = require("./randomBot");
 
 module.exports = {
     RandomBot,
-    bot: baseBombsData,
+    bot: baseBombsDataPad,
     baseDangerMatrix,
     baseDangerMatrixPad,
     baseBombsData,

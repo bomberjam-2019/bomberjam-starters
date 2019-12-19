@@ -1,7 +1,7 @@
 const tf = require("@tensorflow/tfjs");
 require("@tensorflow/tfjs-node");
 
-const { ACTION_SIZE } = require("../../src/game-constants");
+const { ACTION_SIZE } = require("../game-constants");
 const { DATA_SHAPE } = require("./data");
 
 /*
