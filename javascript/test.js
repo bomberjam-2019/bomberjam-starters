@@ -18,7 +18,7 @@ async function test() {
 
     console.log("\nUsing model", bot.modelName);
     console.group("Testing");
-    const test = await data.get(3000 - GAMES_TO_LOAD, GAMES_TO_LOAD, bot.gameStateToModelInputConverter, false);
+    const test = await data.get(6000 - GAMES_TO_LOAD, GAMES_TO_LOAD, bot.gameStateToModelInputConverter, false);
 
     console.log("Making predictions");
     const predictionsTensor = classifier.predict(test.inputs);
