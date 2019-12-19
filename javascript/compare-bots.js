@@ -53,6 +53,8 @@ async function simulateMultipleBots() {
                 return acc;
             }, {});
 
+            results[`Game ${gameNumber}`][winner] = maxScore.toFixed(0);
+
             wins[winner]++;
         }
         console.groupEnd();
