@@ -1,33 +1,33 @@
 import * as tf from '@tensorflow/tfjs-node';
 
-import { IGameState, IPlayer, startSimulation } from 'bomberjam-backend';
-
-import EvoBot from './bot';
-import { IGeneticBot } from './IGeneticBot';
-import { NeuralNetwork } from './neuralNetwork';
+import EvoBot from './bots/EvoBot';
+import GameResult from './gameResult';
+import { IGameResult } from './IGameResult';
+import { IGeneticBot } from './bots/IGeneticBot';
+import { IPlayerResult } from './IPlayerResult';
+import { NeuralNetwork } from './bots/neuralNetwork';
 import { shuffleArray } from './utils';
+import { startSimulation } from 'bomberjam-backend';
 
 type botDictionnary = { [index: string]: IGeneticBot };
 
 export default class GenerationManager {
   private numberOfGames: number;
-  lastGenerationResults!: IGameState[];
+  lastGenerationResults!: IGameResult[];
   private polulationSize: number;
   private bots: botDictionnary;
   private currentGeneration: number;
   private bestScore: number = 0;
-  private gameScoreSum: number = 0;
-  private bestBotScoreSum: number = 0;
   private model: tf.Sequential | undefined;
   private saveLogs: boolean;
 
-  constructor(numberOfGames: number, model?: tf.Sequential) {
+  constructor(numberOfGames: number, model?: tf.Sequential, saveLogs?: boolean) {
     this.numberOfGames = numberOfGames;
     this.polulationSize = numberOfGames * 4;
     this.currentGeneration = 1;
     this.model = model;
     this.bots = this.createBots();
-    this.saveLogs = false;
+    this.saveLogs = saveLogs || false;
   }
 
   private generateBotName(index: number): string {
@@ -45,8 +45,21 @@ export default class GenerationManager {
     return bots;
   }
 
+  private RouletteSelection(allBots: { [id: string]: IPlayerResult }, sortedIds: string[]): IGeneticBot {
+    let seed = Math.random();
+
+    for (const botId of sortedIds) {
+      if (seed <= allBots[botId].fitness) {
+        return this.bots[botId];
+      }
+      seed -= allBots[botId].fitness;
+    }
+
+    return this.bots[sortedIds[0]];
+  }
+
   async runGeneration() {
-    let games: Promise<IGameState>[] = [];
+    let games: Promise<IGameResult>[] = [];
     let botsId = Object.keys(this.bots);
     shuffleArray(botsId);
     for (var _i = 0; _i < this.numberOfGames; _i++) {
@@ -62,22 +75,19 @@ export default class GenerationManager {
     this.lastGenerationResults = await allGames;
   }
 
-  async simulateGameAsync(bots: IGeneticBot[], saveGamelog: boolean): Promise<IGameState> {
-    return new Promise<IGameState>(resolve => {
+  async simulateGameAsync(bots: IGeneticBot[], saveGamelog: boolean): Promise<IGameResult> {
+    return new Promise<IGameResult>(resolve => {
       const simulation = startSimulation(bots, saveGamelog);
-      while (simulation.currentState.suddenDeathCountdown > 0) {
+
+      while (!simulation.isFinished) {
         simulation.executeNextTick();
       }
 
-      const gameResult = JSON.parse(JSON.stringify(simulation.currentState));
+      const gameResult = new GameResult(simulation.currentState);
 
       for (const bot of bots) {
         gameResult.players[bot.id] = gameResult.players[bot.gameId];
         delete gameResult.players[bot.gameId];
-      }
-
-      while (!simulation.isFinished) {
-        simulation.executeNextTick();
       }
 
       resolve(gameResult);
@@ -85,64 +95,54 @@ export default class GenerationManager {
   }
 
   async nextGeneration() {
+
     this.currentGeneration++;
+
     // Merge all bots results
     let allBots = this.lastGenerationResults.reduce(
       (previous, current) => {
         return Object.assign(previous, current.players);
       },
-      {} as { [id: string]: IPlayer }
+      {} as { [id: string]: IPlayerResult }
     );
 
-    // Calculate Total score for generation
-    const totalScore = Object.keys(allBots).reduce((previous, current) => {
-      return previous + allBots[current].score;
-    }, 0);
+    // Normalize fitness
+    const fitnessSum = Object.keys(allBots).reduce((acc, cur) => acc + allBots[cur].fitness, 0);
+    Object.keys(allBots).forEach(id => {
+      allBots[id].fitness = allBots[id].fitness / fitnessSum;
+    });
 
-    // Sort best bot to suckiest bot
+    // Sort by fitness
     const sortedIds = Object.keys(allBots).sort((a, b) =>
-      allBots[a].score > allBots[b].score ? -1 : allBots[a].score < allBots[b].score ? 1 : 0
+      allBots[a].fitness > allBots[b].fitness ? -1 : allBots[a].fitness < allBots[b].fitness ? 1 : 0
     );
 
-    //Remove suckiest bots
-    const idsToRemove = sortedIds.slice(this.numberOfGames * 2);
-    idsToRemove.forEach(id => {
+    // Save best model
+    if (this.bestScore < allBots[sortedIds[0]].score) {
+      console.log(`Saving new best bot with score: ${allBots[sortedIds[0]].score}`);
+      this.bestScore = allBots[sortedIds[0]].score;
+      await this.bots[sortedIds[0]].brain.model.save('file://./saved-models/base-model-best');
+    }
+
+    // Save current best model
+    await this.bots[sortedIds[0]].brain.model.save('file://./saved-models/base-model');
+
+    // Select
+    for (let i = 0; i < this.polulationSize; i++) {
+      const selectedBot = this.RouletteSelection(allBots, sortedIds);
+      const childBot = selectedBot.makeChild(this.generateBotName(i));
+      childBot.mutate();
+      this.bots[childBot.id] = childBot;
+    }
+
+    //Remove current generation bots
+    sortedIds.forEach(id => {
       this.bots[id].dispose();
       delete this.bots[id];
     });
 
-    //Make babies and mutate
-    var childIndex = 1;
-    for (const botId in this.bots) {
-      const childBot = this.bots[botId].makeChild(this.generateBotName(childIndex));
-      childBot.mutate();
-      this.bots[childBot.id] = childBot;
-      childIndex++;
-    }
-
-    // Save models
-    if (this.bestScore < allBots[sortedIds[0]].score) {
-      console.log(`Saving new best bot with score: ${allBots[sortedIds[0]].score}`);
-      this.bestScore = allBots[sortedIds[0]].score;
-      await this.bots[sortedIds[0]].brain.model.save('file://./best-bot');
-    }
-
-    await this.bots[sortedIds[0]].brain.model.save('file://./last-bot');
-
     // Print stats
-    this.gameScoreSum += totalScore;
-    let gameScoreAverage = Math.round(this.gameScoreSum / (this.currentGeneration - 1));
-    let gameScoreDiff = (((totalScore - gameScoreAverage) / ((gameScoreAverage + totalScore) / 2)) * 100).toFixed(2);
-
-    this.bestBotScoreSum += allBots[sortedIds[0]].score;
-    let bestBotAverage = Math.round(this.bestBotScoreSum / (this.currentGeneration - 1));
-    let bestBotScoreDiff = (((allBots[sortedIds[0]].score - bestBotAverage) / ((bestBotAverage + allBots[sortedIds[0]].score) / 2)) * 100).toFixed(2);
-
-    console.log(
-      `${this.currentGeneration - 1} | ${totalScore} | ${gameScoreAverage} | ${gameScoreDiff}% | ${
-      allBots[sortedIds[0]].score
-      } | ${bestBotAverage} | ${bestBotScoreDiff}%`
-    );
-
+    console.log(`Generation ${this.currentGeneration}`);
+    console.table(allBots);
   }
 }
